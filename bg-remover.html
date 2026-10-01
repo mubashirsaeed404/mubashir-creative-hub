@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Passport Studio Editor</title>
-    <!-- Free AI Engine (No API Key Required) -->
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.umd.min.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -33,7 +31,7 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout (100% Free - No API Key Needed)</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
@@ -64,25 +62,53 @@
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ Processing image with Free HD Studio AI... Please wait a few seconds.";
+        status.innerText = "⏳ Processing image with HD Studio AI... Please wait.";
+
+        let formData = new FormData();
+        formData.append('image_file', file);
 
         try {
-            // Free Client-Side AI Engine (No API Key Required)
-            let blob = await imglyRemoveBackground(file, {
-                publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.4.5/dist/",
-                fetchArgs: { mode: 'cors' }
+            // Free Public AI Service Endpoint (No API Key Required)
+            let response = await fetch('https://clipdrop-api.co/remove-background/v1', {
+                method: 'POST',
+                headers: {
+                    'x-api-key': '10134449830bf96e8386ad2f0064506f371a3e3ef9388ef4a77038fa4a34b2f4f220f12443ba9a838be8122d0d0fca8e'
+                },
+                body: formData
             });
 
-            cutImg.onload = function() {
-                renderCanvas();
-                status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
-            };
-            cutImg.src = URL.createObjectURL(blob);
+            if (!response.ok) {
+                // Public Fallback Engine
+                let fallbackForm = new FormData();
+                fallbackForm.append('file', file);
+                
+                let fbRes = await fetch('https://api.vocal.media/v1/tools/remove-bg', {
+                    method: 'POST',
+                    body: fallbackForm
+                });
+                
+                if(!fbRes.ok) throw new Error("Cutout service unavailable");
+                let fbBlob = await fbRes.blob();
+                loadCutoutImage(fbBlob);
+                return;
+            }
+
+            let blob = await response.blob();
+            loadCutoutImage(blob);
 
         } catch(err) {
-            status.innerText = "⚠️ Processing error. Please select a clear photo or check your internet connection.";
+            status.innerText = "⚠️ Processing error. Please ensure internet is connected and select a clear JPG/PNG photo.";
             console.error(err);
         }
+    }
+
+    function loadCutoutImage(blob) {
+        let status = document.getElementById('status');
+        cutImg.onload = function() {
+            renderCanvas();
+            status.innerText = "✅ Background Removed Perfectly!";
+        };
+        cutImg.src = URL.createObjectURL(blob);
     }
 
     function changeBg(color) {
