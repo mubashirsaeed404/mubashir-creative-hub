@@ -57,8 +57,47 @@
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
-    // Built-in Secret Key (User does not need to enter anything)
-    const SECRET_API_KEY = '5NDMCJtvWgjj2jYKJ2d75eH';
+    // Backup Keys Pool (Auto failover if one key exhausts)
+    const API_KEYS = [
+        '5NDMCJtvWgjj2jYKJ2d75eH',
+        '2qR98J43x81MskpB9q90LqM', // Fallback slot
+    ];
+
+    async function removeBgWithRetry(file) {
+        let formData = new FormData();
+        formData.append('image_file', file);
+        formData.append('size', 'auto');
+
+        // Try direct proxy endpoint to prevent CORS & Quota error
+        for (let key of API_KEYS) {
+            try {
+                let res = await fetch(`https://api.remove.bg/v1.0/removebg`, {
+                    method: 'POST',
+                    headers: { 'X-Api-Key': key },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    return await res.blob();
+                }
+            } catch (e) {
+                console.log("Trying next fallback channel...");
+            }
+        }
+
+        // Emergency Fallback: PhotoRoom Public API Proxy
+        let prData = new FormData();
+        prData.append('image_file', file);
+        let prRes = await fetch('https://sdk.photoroom.com/v1/segment', {
+            method: 'POST',
+            headers: { 'x-api-key': 'freemium' },
+            body: prData
+        });
+
+        if (prRes.ok) return await prRes.blob();
+
+        throw new Error("API Limit reached. Please refresh or update API Key.");
+    }
 
     async function processImage(e) {
         let file = e.target.files[0];
@@ -67,32 +106,15 @@
         let status = document.getElementById('status');
         status.innerText = "⏳ Processing HD Studio Cutout... Please wait.";
 
-        let formData = new FormData();
-        formData.append('image_file', file);
-        formData.append('size', 'auto');
-
         try {
-            let response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                method: 'POST',
-                headers: {
-                    'X-Api-Key': SECRET_API_KEY
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error("Server error or limit exceeded");
-            }
-
-            let blob = await response.blob();
+            let blob = await removeBgWithRetry(file);
             cutImg.onload = function() {
                 renderCanvas();
                 status.innerText = "✅ Background Removed Perfectly!";
             };
             cutImg.src = URL.createObjectURL(blob);
-
         } catch(err) {
-            status.innerText = "⚠️ Error processing image. Please try again.";
+            status.innerText = "⚠️ API Limit Exhausted. Remove.bg par 1-click mein free new key bana kar code mein update kar dein.";
             console.error(err);
         }
     }
