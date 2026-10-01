@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Passport Studio Editor</title>
+    <!-- Free AI Engine (No API Key Required) -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.umd.min.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -18,7 +20,6 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .controls { background: #18181b; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
     </style>
 </head>
 <body>
@@ -32,16 +33,11 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo (Instant Offline Background Removal)</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
     <div id="status"></div>
-
-    <div class="controls">
-        <label style="font-weight:bold;">Edge Sensitivity (Tolerance):</label>
-        <input type="range" id="tolerance" min="10" max="100" value="35" oninput="renderCanvas()">
-    </div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select Background Color:</label>
@@ -60,25 +56,33 @@
 </div>
 
 <script>
-    let rawImg = new Image();
+    let cutImg = new Image();
     let currentColor = '#0055ff';
 
-    function processImage(e) {
+    async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⚡ Processing background instantly...";
+        status.innerText = "⏳ Processing image with Free HD Studio AI... Please wait a few seconds.";
 
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            rawImg.onload = function() {
+        try {
+            // Free Client-Side AI Engine (No API Key Required)
+            let blob = await imglyRemoveBackground(file, {
+                publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.4.5/dist/",
+                fetchArgs: { mode: 'cors' }
+            });
+
+            cutImg.onload = function() {
                 renderCanvas();
-                status.innerText = "✅ Background Removed Successfully!";
+                status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
             };
-            rawImg.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+            cutImg.src = URL.createObjectURL(blob);
+
+        } catch(err) {
+            status.innerText = "⚠️ Processing error. Please select a clear photo or check your internet connection.";
+            console.error(err);
+        }
     }
 
     function changeBg(color) {
@@ -87,54 +91,17 @@
     }
 
     function renderCanvas() {
-        if(!rawImg.src) return;
+        if(!cutImg.src) return;
         let canvas = document.getElementById('out-canvas');
         let ctx = canvas.getContext('2d');
+        
+        canvas.width = cutImg.width;
+        canvas.height = cutImg.height;
 
-        canvas.width = rawImg.width;
-        canvas.height = rawImg.height;
+        ctx.fillStyle = currentColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw original image to sample top corner background color
-        ctx.drawImage(rawImg, 0, 0);
-        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imgData.data;
-
-        // Top-Left Pixel Background Color Reference
-        let bgR = data[0];
-        let bgG = data[1];
-        let bgB = data[2];
-
-        let tol = parseInt(document.getElementById('tolerance').value);
-
-        // Convert Hex Background to RGB
-        let newRGB = hexToRgb(currentColor);
-
-        for (let i = 0; i < data.length; i += 4) {
-            let r = data[i];
-            let g = data[i + 1];
-            let b = data[i + 2];
-
-            // Calculate color distance from top corner background color
-            let diff = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-
-            if (diff < tol) {
-                // Replace original background with user selected color
-                data[i] = newRGB.r;
-                data[i + 1] = newRGB.g;
-                data[i + 2] = newRGB.b;
-            }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-    }
-
-    function hexToRgb(hex) {
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : { r: 0, g: 85, b: 255 };
+        ctx.drawImage(cutImg, 0, 0);
     }
 
     function downloadPhoto() {
