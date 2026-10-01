@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlimited AI Background Remover - Mubashir Creative Hub</title>
+    <title>AI Background Remover - Mubashir Creative Hub</title>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -23,7 +23,7 @@
 <body>
 
 <header>
-    <h1>Unlimited AI Background Remover</h1>
+    <h1>AI Background Remover Studio</h1>
 </header>
 
 <div class="container">
@@ -31,14 +31,14 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for unlimited free AI background removal</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for instant Remove.bg AI background removal</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
     <div id="status"></div>
 
     <div class="color-presets">
-        <label style="font-weight:bold;">Select Background Color:</label>
+        <label style="font-weight:bold;">Select Passport Background Color:</label>
         <div class="color-btn" style="background:#0055ff;" onclick="changeBg('#0055ff')"></div>
         <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
         <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
@@ -54,6 +54,7 @@
 </div>
 
 <script>
+    const API_KEY = '5NDMCJtvWgjj2jYKJ2d75eH';
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
@@ -62,40 +63,33 @@
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ AI Server Processing... Removing Background smoothly...";
+        status.innerText = "⏳ AI Engine Processing... Removing background with Remove.bg API...";
 
         let formData = new FormData();
         formData.append('image_file', file);
+        formData.append('size', 'auto');
 
         try {
-            // Free Cloud AI Engine for background removal
-            let response = await fetch('https://clipdrop-api.co/remove-background/v1', {
+            let response = await fetch('https://api.remove.bg/v1.0/removebg', {
                 method: 'POST',
-                headers: { 'x-api-key': 'd1b22e1a3fa4' }, // Proxy endpoint
+                headers: { 'X-Api-Key': API_KEY },
                 body: formData
             });
 
-            if (!response.ok) throw new Error("Fallback engine triggered");
+            if(!response.ok) {
+                let errData = await response.json();
+                throw new Error(errData.errors ? errData.errors[0].title : "API Error");
+            }
 
             let blob = await response.blob();
             cutImg.onload = function() {
                 renderCanvas();
-                status.innerText = "✅ AI Background Removed Successfully!";
+                status.innerText = "✅ AI Background Removed Perfectly!";
             };
             cutImg.src = URL.createObjectURL(blob);
 
         } catch(err) {
-            // High precision fallback client reader
-            status.innerText = "⏳ Processing image using Local AI Engine...";
-            let reader = new FileReader();
-            reader.onload = function(evt) {
-                cutImg.onload = function() {
-                    renderCanvas();
-                    status.innerText = "✅ Image Loaded!";
-                };
-                cutImg.src = evt.target.result;
-            };
-            reader.readAsDataURL(file);
+            status.innerText = "⚠️ Error: " + err.message;
         }
     }
 
@@ -120,7 +114,7 @@
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'ai_background_removed.png';
+        a.download = 'studio_passport_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
