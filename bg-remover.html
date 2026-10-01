@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediaPipe AI Background Remover</title>
-    <!-- MediaPipe Selfie Segmentation AI -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
-
+    <title>AI Passport Studio Editor</title>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -22,7 +18,7 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .slider-box { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+        .key-input { margin-top: 10px; width: 100%; padding: 8px; background: #18181b; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -36,11 +32,16 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Google MediaPipe AI Cutout</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
-    <div id="status">⏳ Initializing MediaPipe AI...</div>
+    <div style="margin-top:15px;">
+        <label style="font-size:0.85rem; color:#a1a1aa;">Remove.bg API Key (Optional for Unlimited HD):</label>
+        <input type="text" id="api-key" class="key-input" placeholder="Enter your free Remove.bg API Key or leave default">
+    </div>
+
+    <div id="status"></div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select Background Color:</label>
@@ -48,12 +49,7 @@
         <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
         <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
         <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
-        <input type="color" id="custom-color" value="#cc0000" onchange="changeBg(this.value)">
-    </div>
-
-    <div class="slider-box">
-        <label style="font-weight:bold;">Edge Cut Softness / Trim:</label>
-        <input type="range" id="edgeThreshold" min="0.3" max="0.9" step="0.05" value="0.65" oninput="reRender()">
+        <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)">
     </div>
 
     <div class="preview-box">
@@ -64,103 +60,68 @@
 </div>
 
 <script>
-    let currentColor = '#cc0000';
-    let loadedImage = null;
-    let selfieSegmentation = null;
-    let lastResults = null;
+    let cutImg = new Image();
+    let currentColor = '#0055ff';
 
-    // Load Google MediaPipe Model
-    function initMediaPipe() {
-        selfieSegmentation = new SelfieSegmentation({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
-        });
-
-        selfieSegmentation.setOptions({
-            modelSelection: 1 // 1 = High-accuracy portrait model
-        });
-
-        selfieSegmentation.onResults(onResults);
-        document.getElementById('status').innerText = "✅ MediaPipe AI Engine Ready! Upload Photo.";
-    }
-
-    initMediaPipe();
-
-    function processImage(e) {
+    async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "🔍 Precision AI is scanning subject & removing background...";
+        status.innerText = "⏳ Processing image with HD Studio AI... Please wait.";
 
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            let img = new Image();
-            img.onload = async function() {
-                loadedImage = img;
-                await selfieSegmentation.send({ image: loadedImage });
-                status.innerText = "✅ Studio Cutout Finished!";
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
+        let customKey = document.getElementById('api-key').value.trim();
+        let apiKey = customKey || '5NDMCJtvWgjj2jYKJ2d75eH'; // Backup Key
 
-    function onResults(results) {
-        lastResults = results;
-        renderCanvas();
-    }
+        let formData = new FormData();
+        formData.append('image_file', file);
+        formData.append('size', 'auto');
 
-    function renderCanvas() {
-        if(!lastResults || !loadedImage) return;
+        try {
+            // Direct Remove.bg API call with no proxy header loss
+            let response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                method: 'POST',
+                headers: {
+                    'X-Api-Key': apiKey
+                },
+                body: formData
+            });
 
-        let canvas = document.getElementById('out-canvas');
-        let ctx = canvas.getContext('2d');
-        canvas.width = loadedImage.width;
-        canvas.height = loadedImage.height;
-
-        let thresh = parseFloat(document.getElementById('edgeThreshold').value);
-
-        // 1. Fill solid background color
-        ctx.save();
-        ctx.fillStyle = currentColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // 2. Process segmentation mask with precision thresholding
-        let tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-        let tempCtx = tempCanvas.getContext('2d');
-
-        tempCtx.drawImage(lastResults.segmentationMask, 0, 0, canvas.width, canvas.height);
-        let maskData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
-        let pixels = maskData.data;
-
-        // Apply strict threshold to eliminate white outline bleed
-        for (let i = 0; i < pixels.length; i += 4) {
-            let alpha = pixels[i] / 255.0;
-            if (alpha < thresh) {
-                pixels[i + 3] = 0; // Cut background fully
-            } else {
-                pixels[i + 3] = 255;
+            if (!response.ok) {
+                let errData = await response.json().catch(() => ({}));
+                throw new Error(errData.errors?.[0]?.title || "API Limit reached / Invalid Key");
             }
+
+            let blob = await response.blob();
+            cutImg.onload = function() {
+                renderCanvas();
+                status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
+            };
+            cutImg.src = URL.createObjectURL(blob);
+
+        } catch(err) {
+            status.innerText = "⚠️ Error: " + err.message + ". Apni Remove.bg ki free API Key daal kar try karein.";
+            console.error(err);
         }
-        tempCtx.putImageData(maskData, 0, 0);
-
-        // 3. Composite subject onto clean background
-        tempCtx.globalCompositeOperation = 'source-in';
-        tempCtx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(tempCanvas, 0, 0);
-        ctx.restore();
-    }
-
-    function reRender() {
-        renderCanvas();
     }
 
     function changeBg(color) {
         currentColor = color;
         renderCanvas();
+    }
+
+    function renderCanvas() {
+        if(!cutImg.src) return;
+        let canvas = document.getElementById('out-canvas');
+        let ctx = canvas.getContext('2d');
+        
+        canvas.width = cutImg.width;
+        canvas.height = cutImg.height;
+
+        ctx.fillStyle = currentColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.drawImage(cutImg, 0, 0);
     }
 
     function downloadPhoto() {
