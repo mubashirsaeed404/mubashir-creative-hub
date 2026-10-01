@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Passport Studio Editor</title>
-    <!-- 100% Free Client-Side WASM Engine (No API Key Required) -->
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.umd.min.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -20,6 +18,7 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
+        .controls { background: #18181b; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
     </style>
 </head>
 <body>
@@ -33,11 +32,16 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for Automatic Studio Cutout (100% Free & Unlimited)</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo (Instant Offline Background Removal)</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
     <div id="status"></div>
+
+    <div class="controls">
+        <label style="font-weight:bold;">Edge Sensitivity (Tolerance):</label>
+        <input type="range" id="tolerance" min="10" max="100" value="35" oninput="renderCanvas()">
+    </div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select Background Color:</label>
@@ -56,37 +60,25 @@
 </div>
 
 <script>
-    let cutImg = new Image();
+    let rawImg = new Image();
     let currentColor = '#0055ff';
 
-    async function processImage(e) {
+    function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ Processing HD AI Cutout locally in browser... Please wait 3-5 seconds.";
+        status.innerText = "⚡ Processing background instantly...";
 
-        try {
-            // High-precision local WASM neural network execution
-            let blob = await imglyRemoveBackground(file, {
-                model: 'medium', // High accuracy cutout model
-                progress: (key, current, total) => {
-                    if (key.startsWith('fetch')) {
-                        status.innerText = `⏳ Loading AI Engine components (${Math.round((current/total)*100)}%)...`;
-                    }
-                }
-            });
-
-            cutImg.onload = function() {
+        let reader = new FileReader();
+        reader.onload = function(event) {
+            rawImg.onload = function() {
                 renderCanvas();
-                status.innerText = "✅ Background Removed Perfectly!";
+                status.innerText = "✅ Background Removed Successfully!";
             };
-            cutImg.src = URL.createObjectURL(blob);
-
-        } catch(err) {
-            status.innerText = "⚠️ Error processing image. Please try another clear portrait photo.";
-            console.error(err);
-        }
+            rawImg.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 
     function changeBg(color) {
@@ -95,17 +87,54 @@
     }
 
     function renderCanvas() {
-        if(!cutImg.src) return;
+        if(!rawImg.src) return;
         let canvas = document.getElementById('out-canvas');
         let ctx = canvas.getContext('2d');
-        
-        canvas.width = cutImg.width;
-        canvas.height = cutImg.height;
 
-        ctx.fillStyle = currentColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        canvas.width = rawImg.width;
+        canvas.height = rawImg.height;
 
-        ctx.drawImage(cutImg, 0, 0);
+        // Draw original image to sample top corner background color
+        ctx.drawImage(rawImg, 0, 0);
+        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imgData.data;
+
+        // Top-Left Pixel Background Color Reference
+        let bgR = data[0];
+        let bgG = data[1];
+        let bgB = data[2];
+
+        let tol = parseInt(document.getElementById('tolerance').value);
+
+        // Convert Hex Background to RGB
+        let newRGB = hexToRgb(currentColor);
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = data[i];
+            let g = data[i + 1];
+            let b = data[i + 2];
+
+            // Calculate color distance from top corner background color
+            let diff = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+
+            if (diff < tol) {
+                // Replace original background with user selected color
+                data[i] = newRGB.r;
+                data[i + 1] = newRGB.g;
+                data[i + 2] = newRGB.b;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    function hexToRgb(hex) {
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 0, g: 85, b: 255 };
     }
 
     function downloadPhoto() {
