@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Background Remover Studio</title>
-    <!-- Load Imgly AI Model in Browser -->
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
+    <title>AI Studio Background Remover</title>
+    <!-- TensorFlow & BodyPix AI Models -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
+
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -33,11 +35,11 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Deep AI Background Removal</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for Automatic AI Object Detection</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
-    <div id="status"></div>
+    <div id="status">⏳ Loading AI Model, please wait...</div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select Background Color:</label>
@@ -52,61 +54,103 @@
         <canvas id="out-canvas"></canvas>
     </div>
 
-    <button class="dl-btn" onclick="downloadPhoto()">Download Studio Photo</button>
+    <button class="dl-btn" onclick="downloadPhoto()">Download Passport Photo</button>
 </div>
 
 <script>
-    let cutImg = new Image();
+    let net = null;
+    let originalImg = null;
     let currentColor = '#0055ff';
+
+    // Initialize TensorFlow BodyPix Model
+    async function loadModel() {
+        let status = document.getElementById('status');
+        status.innerText = "⏳ Loading AI Engine... (First time may take a few seconds)";
+        net = await bodyPix.load({
+            architecture: 'MobileNetV1',
+            outputStride: 16,
+            multiplier: 0.75,
+            quantBytes: 2
+        });
+        status.innerText = "✅ AI Engine Ready! Please Upload Photo.";
+    }
+    loadModel();
 
     async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
-        let status = document.getElementById('status');
-        status.innerText = "⏳ AI model is detecting person & removing background... Please wait 5-10 seconds.";
-
-        try {
-            // Real Neural Network AI Model Execution
-            let blob = await imglyRemoveBackground(file);
-            cutImg.onload = function() {
-                renderCanvas();
-                status.innerText = "✅ AI Background Cutout Finished Perfectly!";
-            };
-            cutImg.src = URL.createObjectURL(blob);
-
-        } catch(err) {
-            status.innerText = "⚠️ Error in AI processing. Please reload and try again.";
-            console.error(err);
+        if(!net) {
+            alert("AI Model is still loading, please wait a moment.");
+            return;
         }
+
+        let status = document.getElementById('status');
+        status.innerText = "🔍 AI is detecting person & cutting background...";
+
+        let reader = new FileReader();
+        reader.onload = function(event) {
+            let img = new Image();
+            img.onload = async function() {
+                originalImg = img;
+                await runSegmentation();
+                status.innerText = "✅ Background Removed Successfully!";
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function runSegmentation() {
+        if(!originalImg || !net) return;
+
+        let canvas = document.getElementById('out-canvas');
+        let ctx = canvas.getContext('2d');
+        canvas.width = originalImg.width;
+        canvas.height = originalImg.height;
+
+        // Perform AI Person Detection
+        const segmentation = await net.segmentPerson(originalImg, {
+            internalResolution: 'medium',
+            segmentationThreshold: 0.7
+        });
+
+        // Draw Selected Studio Background
+        ctx.fillStyle = currentColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Get Image Pixels
+        let tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        let tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(originalImg, 0, 0);
+
+        let imgData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+        let pixels = imgData.data;
+
+        // Apply AI Mask: Keep person pixels, remove background
+        for (let i = 0; i < segmentation.data.length; i++) {
+            if (segmentation.data[i] === 0) {
+                // Background pixel -> make transparent
+                pixels[i * 4 + 3] = 0;
+            }
+        }
+
+        tempCtx.putImageData(imgData, 0, 0);
+        ctx.drawImage(tempCanvas, 0, 0);
     }
 
     function changeBg(color) {
         currentColor = color;
-        renderCanvas();
-    }
-
-    function renderCanvas() {
-        if(!cutImg.src) return;
-        let canvas = document.getElementById('out-canvas');
-        let ctx = canvas.getContext('2d');
-        
-        canvas.width = cutImg.width;
-        canvas.height = cutImg.height;
-
-        // Fill Passport Background
-        ctx.fillStyle = currentColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Draw Cutout Person
-        ctx.drawImage(cutImg, 0, 0);
+        runSegmentation();
     }
 
     function downloadPhoto() {
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'studio_passport_photo.png';
+        a.download = 'passport_studio_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
