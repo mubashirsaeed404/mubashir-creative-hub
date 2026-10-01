@@ -18,6 +18,8 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
+        .key-box { background: #18181b; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .key-input { width: 100%; padding: 8px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -29,9 +31,15 @@
 <div class="container">
     <a href="index.html" class="back-link">← Back to Main Hub</a>
 
+    <div class="key-box">
+        <label style="font-size:0.85rem; color:var(--accent); font-weight:bold;">🔑 Remove.bg API Keys (Comma separated for Unlimited Auto-Rotate):</label>
+        <input type="text" id="api-keys" class="key-input" placeholder="Paste key 1, key 2, key 3...">
+        <p style="font-size:0.75rem; color:#a1a1aa; margin:5px 0 0 0;">Free key create karne ke liye <a href="https://www.remove.bg/api" target="_blank" style="color:var(--accent);">Remove.bg API</a> par visit karein.</p>
+    </div>
+
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio AI Cutout</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for Studio AI Cutout</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
@@ -57,38 +65,54 @@
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
+    // Auto Load Saved Keys
+    document.getElementById('api-keys').value = localStorage.getItem('studio_bg_keys') || '';
+    document.getElementById('api-keys').addEventListener('input', function() {
+        localStorage.setItem('studio_bg_keys', this.value.trim());
+    });
+
     async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ Processing HD AI Cutout... Please wait (2-5 seconds).";
+        let rawKeys = document.getElementById('api-keys').value.trim();
+        
+        if(!rawKeys) {
+            status.innerText = "⚠️ Please enter at least 1 free Remove.bg API key above!";
+            return;
+        }
 
-        try {
-            // Free HuggingFace Inference AI Engine (RMBG-1.4 Open Model - No API Key Required)
-            let response = await fetch("https://router.huggingface.co/hf-inference/v1/models/briaai/RMBG-1.4", {
-                method: "POST",
-                body: file
-            });
+        let keysArray = rawKeys.split(',').map(k => k.trim()).filter(k => k.length > 0);
+        status.innerText = "⏳ Processing HD Studio Cutout... Please wait.";
 
-            if(!response.ok) {
-                // Public CORS Gateway Fallback
-                let res2 = await fetch("https://api.bria.ai/v1/background-removal/public-demo", {
-                    method: "POST",
-                    body: file
+        let success = false;
+
+        for (let apiKey of keysArray) {
+            try {
+                let formData = new FormData();
+                formData.append('image_file', file);
+                formData.append('size', 'auto');
+
+                let response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: { 'X-Api-Key': apiKey },
+                    body: formData
                 });
-                if(!res2.ok) throw new Error("AI Server Busy");
-                let blob2 = await res2.blob();
-                loadCutout(blob2);
-                return;
+
+                if (response.ok) {
+                    let blob = await response.blob();
+                    loadCutout(blob);
+                    success = true;
+                    break;
+                }
+            } catch(err) {
+                console.log("Key failed, trying next...", err);
             }
+        }
 
-            let blob = await response.blob();
-            loadCutout(blob);
-
-        } catch(err) {
-            status.innerText = "⚠️ Server busy. Please try uploading the image again in a few seconds.";
-            console.error(err);
+        if(!success) {
+            status.innerText = "⚠️ All entered API keys failed or ran out of credits. Please add a new free key!";
         }
     }
 
@@ -96,7 +120,7 @@
         let status = document.getElementById('status');
         cutImg.onload = function() {
             renderCanvas();
-            status.innerText = "✅ Background Removed Cleanly with AI!";
+            status.innerText = "✅ Background Removed Perfectly with HD AI Cutout!";
         };
         cutImg.src = URL.createObjectURL(blob);
     }
@@ -124,7 +148,7 @@
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'studio_passport_photo.png';
+        a.download = 'passport_studio_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
