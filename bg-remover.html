@@ -15,10 +15,9 @@
         .color-presets { display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
         .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
         .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; padding: 10px; }
-        canvas { max-width: 100%; height: auto; cursor: crosshair; }
+        canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .tool-bar { background: #1a1a1e; padding: 10px; border-radius: 8px; margin-top: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
     </style>
 </head>
 <body>
@@ -32,20 +31,11 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo (Offline Local Canvas Studio Engine)</p>
-        <input type="file" id="file-in" accept="image/*" style="display:none" onchange="loadImage(event)">
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio AI Cutout</p>
+        <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
     <div id="status"></div>
-
-    <div class="tool-bar">
-        <div>
-            <label style="font-size:0.9rem; font-weight:bold;">Click Photo Corner to Remove BG Color</label>
-        </div>
-        <div>
-            <button onclick="resetImage()" style="background:#27272a; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Reset Photo</button>
-        </div>
-    </div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select New Background Color:</label>
@@ -57,125 +47,84 @@
     </div>
 
     <div class="preview-box">
-        <canvas id="out-canvas" onclick="pickAndRemoveBg(event)"></canvas>
+        <canvas id="out-canvas"></canvas>
     </div>
 
     <button class="dl-btn" onclick="downloadPhoto()">Download Passport Photo</button>
 </div>
 
 <script>
-    let rawImg = new Image();
-    let bgMaskCanvas = document.createElement('canvas');
+    let cutImg = new Image();
     let currentColor = '#0055ff';
-    let isProcessed = false;
 
-    function loadImage(e) {
+    async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            rawImg.onload = function() {
-                let canvas = document.getElementById('out-canvas');
-                let ctx = canvas.getContext('2d');
-                canvas.width = rawImg.width;
-                canvas.height = rawImg.height;
-                
-                bgMaskCanvas.width = rawImg.width;
-                bgMaskCanvas.height = rawImg.height;
+        let status = document.getElementById('status');
+        status.innerText = "⏳ Processing HD AI Cutout... Please wait (2-5 seconds).";
 
-                // Auto Clean Top Corner Background on Upload
-                autoRemoveCornerBg();
-                document.getElementById('status').innerText = "✅ Image Loaded! Tap anywhere on background to refine cutout if needed.";
-            };
-            rawImg.src = event.target.result;
+        try {
+            // Free HuggingFace Inference AI Engine (RMBG-1.4 Open Model - No API Key Required)
+            let response = await fetch("https://router.huggingface.co/hf-inference/v1/models/briaai/RMBG-1.4", {
+                method: "POST",
+                body: file
+            });
+
+            if(!response.ok) {
+                // Public CORS Gateway Fallback
+                let res2 = await fetch("https://api.bria.ai/v1/background-removal/public-demo", {
+                    method: "POST",
+                    body: file
+                });
+                if(!res2.ok) throw new Error("AI Server Busy");
+                let blob2 = await res2.blob();
+                loadCutout(blob2);
+                return;
+            }
+
+            let blob = await response.blob();
+            loadCutout(blob);
+
+        } catch(err) {
+            status.innerText = "⚠️ Server busy. Please try uploading the image again in a few seconds.";
+            console.error(err);
+        }
+    }
+
+    function loadCutout(blob) {
+        let status = document.getElementById('status');
+        cutImg.onload = function() {
+            renderCanvas();
+            status.innerText = "✅ Background Removed Cleanly with AI!";
         };
-        reader.readAsDataURL(file);
-    }
-
-    function autoRemoveCornerBg() {
-        let canvas = document.getElementById('out-canvas');
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(rawImg, 0, 0);
-
-        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imgData.data;
-
-        // Sample top-left corner background color
-        let targetR = data[0], targetG = data[1], targetB = data[2];
-        let newRGB = hexToRgb(currentColor);
-
-        for (let i = 0; i < data.length; i += 4) {
-            let r = data[i], g = data[i+1], b = data[i+2];
-            let dist = Math.sqrt((r-targetR)**2 + (g-targetG)**2 + (b-targetB)**2);
-            
-            if (dist < 45) { // Color match threshold
-                data[i] = newRGB.r;
-                data[i+1] = newRGB.g;
-                data[i+2] = newRGB.b;
-            }
-        }
-        ctx.putImageData(imgData, 0, 0);
-        isProcessed = true;
-    }
-
-    function pickAndRemoveBg(e) {
-        if(!rawImg.src) return;
-        let canvas = document.getElementById('out-canvas');
-        let ctx = canvas.getContext('2d');
-        let rect = canvas.getBoundingClientRect();
-        
-        let scaleX = canvas.width / rect.width;
-        let scaleY = canvas.height / rect.height;
-        
-        let x = Math.floor((e.clientX - rect.left) * scaleX);
-        let y = Math.floor((e.clientY - rect.top) * scaleY);
-
-        ctx.drawImage(rawImg, 0, 0);
-        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imgData.data;
-
-        let pixelIdx = (y * canvas.width + x) * 4;
-        let targetR = data[pixelIdx], targetG = data[pixelIdx+1], targetB = data[pixelIdx+2];
-        let newRGB = hexToRgb(currentColor);
-
-        for (let i = 0; i < data.length; i += 4) {
-            let r = data[i], g = data[i+1], b = data[i+2];
-            let dist = Math.sqrt((r-targetR)**2 + (g-targetG)**2 + (b-targetB)**2);
-            
-            if (dist < 50) {
-                data[i] = newRGB.r;
-                data[i+1] = newRGB.g;
-                data[i+2] = newRGB.b;
-            }
-        }
-        ctx.putImageData(imgData, 0, 0);
-        document.getElementById('status').innerText = "✅ Background color updated!";
+        cutImg.src = URL.createObjectURL(blob);
     }
 
     function changeBg(color) {
         currentColor = color;
-        if(rawImg.src) autoRemoveCornerBg();
+        renderCanvas();
     }
 
-    function resetImage() {
-        if(!rawImg.src) return;
+    function renderCanvas() {
+        if(!cutImg.src) return;
         let canvas = document.getElementById('out-canvas');
         let ctx = canvas.getContext('2d');
-        ctx.drawImage(rawImg, 0, 0);
-        document.getElementById('status').innerText = "Photo reset to original.";
-    }
+        
+        canvas.width = cutImg.width;
+        canvas.height = cutImg.height;
 
-    function hexToRgb(hex) {
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 0, g: 85, b: 255 };
+        ctx.fillStyle = currentColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.drawImage(cutImg, 0, 0);
     }
 
     function downloadPhoto() {
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'passport_studio_photo.png';
+        a.download = 'studio_passport_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
