@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Background Remover - Mubashir Creative Hub</title>
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.min.js"></script>
+    <title>Smart Background Remover - Mubashir Creative Hub</title>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
         header { background: #000; padding: 1.2rem; text-align: center; border-bottom: 2px solid var(--accent); }
         header h1 { margin: 0; color: var(--accent); font-size: 1.5rem; }
-        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .container { max-width: 850px; margin: 2rem auto; padding: 0 1rem; }
         .back-link { display: inline-block; color: var(--accent); text-decoration: none; font-weight: bold; margin-bottom: 1rem; }
-        .upload-area { border: 2px dashed var(--accent); background: #1a1a1e; border-radius: 12px; padding: 2.5rem; text-align: center; cursor: pointer; }
-        .color-presets { display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
-        .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
-        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 280px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; }
-        canvas { max-width: 100%; height: auto; }
-        #status { color: var(--accent); font-weight: bold; margin-top: 10px; }
+        .upload-area { border: 2px dashed var(--accent); background: #1a1a1e; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; }
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; background: var(--card); padding: 1rem; border-radius: 10px; border: 1px solid var(--border); }
+        label { display: block; font-size: 0.85rem; color: #a1a1aa; margin-bottom: 6px; font-weight: bold; }
+        .color-presets { display: flex; gap: 8px; align-items: center; }
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
+        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1rem; overflow: auto; padding: 10px; }
+        canvas { max-width: 100%; height: auto; cursor: crosshair; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
+        .instructions { background: #18181b; border-left: 4px solid var(--accent); padding: 10px 15px; margin-top: 1rem; border-radius: 4px; font-size: 0.9rem; color: #d4d4d8; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>AI Background Remover Studio</h1>
+    <h1>Smart Studio Background Changer</h1>
 </header>
 
 <div class="container">
@@ -32,77 +33,150 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa;">Click to select photo for instant background removal</p>
-        <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
+        <p style="color:#a1a1aa; margin:0;">Select passport/portrait photo</p>
+        <input type="file" id="file-in" accept="image/*" style="display:none" onchange="loadImage(event)">
     </div>
 
-    <div id="status"></div>
+    <div class="instructions">
+        👉 <strong>Kaise use karein:</strong> Image upload karne ke baad neeche photo par <strong>purane background color par click karein</strong>. Tolerance slider se safai adjust karein aur naya color select karein!
+    </div>
 
-    <div class="color-presets">
-        <label style="font-weight:bold;">Select Background Color:</label>
-        <div class="color-btn" style="background:#0055ff;" onclick="changeBg('#0055ff')"></div>
-        <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
-        <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
-        <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
-        <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)">
+    <div class="controls">
+        <div>
+            <label>Naya Background Color:</label>
+            <div class="color-presets">
+                <div class="color-btn" style="background:#0055ff;" onclick="setNewColor('#0055ff')"></div>
+                <div class="color-btn" style="background:#ffffff;" onclick="setNewColor('#ffffff')"></div>
+                <div class="color-btn" style="background:#cc0000;" onclick="setNewColor('#cc0000')"></div>
+                <div class="color-btn" style="background:#888888;" onclick="setNewColor('#888888')"></div>
+                <input type="color" id="custom-color" value="#0055ff" onchange="setNewColor(this.value)">
+            </div>
+        </div>
+
+        <div>
+            <label>Cleaner Sensitivity (Tolerance): <span id="tol-val">30</span></label>
+            <input type="range" id="tolerance" min="5" max="100" value="30" style="width:100%;" oninput="updateTolerance(this.value)">
+        </div>
     </div>
 
     <div class="preview-box">
-        <canvas id="out-canvas"></canvas>
+        <canvas id="out-canvas" onclick="pickOriginalColor(event)"></canvas>
     </div>
 
     <button class="dl-btn" onclick="downloadPhoto()">Download Edited Image</button>
 </div>
 
 <script>
-    let foregroundBlob = null;
-    let currentColor = '#0055ff';
+    let rawImg = new Image();
+    let originalData = null;
+    let targetRGB = null;
+    let newBgColor = '#0055ff';
+    let currentTolerance = 30;
 
-    async function processImage(e) {
+    function loadImage(e) {
         let file = e.target.files[0];
         if(!file) return;
-        
-        let status = document.getElementById('status');
-        status.innerText = "⏳ AI Engine Processing Image... Removing Background...";
 
-        try {
-            foregroundBlob = await imglyRemoveBackground(file);
-            status.innerText = "✅ Background removed successfully!";
-            render();
-        } catch(err) {
-            status.innerText = "⚠️ Error processing image. Using raw image mode.";
-            foregroundBlob = file;
-            render();
-        }
-    }
+        let reader = new FileReader();
+        reader.onload = function(evt) {
+            rawImg.onload = function() {
+                let canvas = document.getElementById('out-canvas');
+                let ctx = canvas.getContext('2d');
+                canvas.width = rawImg.width;
+                canvas.height = rawImg.height;
 
-    function changeBg(color) {
-        currentColor = color;
-        render();
-    }
-
-    function render() {
-        if(!foregroundBlob) return;
-        let img = new Image();
-        img.onload = function() {
-            let canvas = document.getElementById('out-canvas');
-            let ctx = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            ctx.fillStyle = currentColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
+                ctx.drawImage(rawImg, 0, 0);
+                originalData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                // Auto sample top-left corner color as default background
+                targetRGB = {
+                    r: originalData.data[0],
+                    g: originalData.data[1],
+                    b: originalData.data[2]
+                };
+                processBackground();
+            };
+            rawImg.src = evt.target.result;
         };
-        img.src = URL.createObjectURL(foregroundBlob);
+        reader.readAsDataURL(file);
+    }
+
+    function pickOriginalColor(e) {
+        if(!originalData) return;
+        let canvas = document.getElementById('out-canvas');
+        let rect = canvas.getBoundingClientRect();
+        let scaleX = canvas.width / rect.width;
+        let scaleY = canvas.height / rect.height;
+
+        let x = Math.floor((e.clientX - rect.left) * scaleX);
+        let y = Math.floor((e.clientY - rect.top) * scaleY);
+
+        let index = (y * canvas.width + x) * 4;
+        targetRGB = {
+            r: originalData.data[index],
+            g: originalData.data[index + 1],
+            b: originalData.data[index + 2]
+        };
+        processBackground();
+    }
+
+    function setNewColor(color) {
+        newBgColor = color;
+        processBackground();
+    }
+
+    function updateTolerance(val) {
+        document.getElementById('tol-val').innerText = val;
+        currentTolerance = parseInt(val);
+        processBackground();
+    }
+
+    function processBackground() {
+        if(!originalData || !targetRGB) return;
+
+        let canvas = document.getElementById('out-canvas');
+        let ctx = canvas.getContext('2d');
+        let imgData = ctx.createImageData(originalData.width, originalData.height);
+        let src = originalData.data;
+        let dst = imgData.data;
+
+        // Convert hex newBgColor to RGB
+        let newR = parseInt(newBgColor.substr(1,2), 16);
+        let newG = parseInt(newBgColor.substr(3,2), 16);
+        let newB = parseInt(newBgColor.substr(5,2), 16);
+
+        for(let i = 0; i < src.length; i += 4) {
+            let r = src[i];
+            let g = src[i+1];
+            let b = src[i+2];
+
+            let dist = Math.sqrt(
+                Math.pow(r - targetRGB.r, 2) +
+                Math.pow(g - targetRGB.g, 2) +
+                Math.pow(b - targetRGB.b, 2)
+            );
+
+            if(dist < currentTolerance * 2) {
+                dst[i] = newR;
+                dst[i+1] = newG;
+                dst[i+2] = newB;
+                dst[i+3] = 255;
+            } else {
+                dst[i] = r;
+                dst[i+1] = g;
+                dst[i+2] = b;
+                dst[i+3] = src[i+3];
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
     }
 
     function downloadPhoto() {
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'bg_removed_studio.png';
-        a.href = canvas.toDataURL();
+        a.download = 'studio_passport_photo.png';
+        a.href = canvas.toDataURL('image/png');
         a.click();
     }
 </script>
