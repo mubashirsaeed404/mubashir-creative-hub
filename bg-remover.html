@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Background Remover - Mubashir Creative Hub</title>
+    <!-- Free AI Engine Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -14,7 +16,7 @@
         .upload-area { border: 2px dashed var(--accent); background: #1a1a1e; border-radius: 12px; padding: 2.5rem; text-align: center; cursor: pointer; }
         .color-presets { display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
         .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
-        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 280px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; position: relative; }
+        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 280px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; }
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
@@ -31,7 +33,7 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for instant Remove.bg AI background removal</p>
+        <p style="color:#a1a1aa; margin:0;">Select photo for instant Free AI background removal</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
@@ -54,7 +56,6 @@
 </div>
 
 <script>
-    const API_KEY = '5NDMCJtvWgjj2jYKJ2d75eH';
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
@@ -63,33 +64,21 @@
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ AI Engine Processing... Removing background with Remove.bg API...";
-
-        let formData = new FormData();
-        formData.append('image_file', file);
-        formData.append('size', 'auto');
+        status.innerText = "⏳ AI Engine Processing... Removing background smoothly (Wait 5-10 sec)...";
 
         try {
-            let response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                method: 'POST',
-                headers: { 'X-Api-Key': API_KEY },
-                body: formData
-            });
-
-            if(!response.ok) {
-                let errData = await response.json();
-                throw new Error(errData.errors ? errData.errors[0].title : "API Error");
-            }
-
-            let blob = await response.blob();
+            // Free Client-Side AI Background Removal Engine
+            const imageBlob = await imglyRemoveBackground(file);
+            
             cutImg.onload = function() {
                 renderCanvas();
-                status.innerText = "✅ AI Background Removed Perfectly!";
+                status.innerText = "✅ Background Removed Perfectly!";
             };
-            cutImg.src = URL.createObjectURL(blob);
+            cutImg.src = URL.createObjectURL(imageBlob);
 
         } catch(err) {
-            status.innerText = "⚠️ Error: " + err.message;
+            status.innerText = "⚠️ Processing Error: Please try another clear photo.";
+            console.error(err);
         }
     }
 
