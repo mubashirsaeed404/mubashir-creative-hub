@@ -31,7 +31,7 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for Remove.bg HD AI background removal</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Automatic AI background removal</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
@@ -54,7 +54,6 @@
 </div>
 
 <script>
-    const API_KEY = '5NDMCJtvWgjj2jYKJ2d75eH';
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
@@ -63,23 +62,28 @@
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ Processing image... Connecting with Remove.bg AI...";
+        status.innerText = "⏳ Processing image... Removing background with AI...";
 
         let formData = new FormData();
         formData.append('image_file', file);
-        formData.append('size', 'auto');
 
         try {
-            // Bypass browser CORS via proxy
-            let response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.remove.bg/v1.0/removebg'), {
+            // Direct Cloud AI Removal Engine
+            let response = await fetch('https://sdk.photoroom.com/v1/segment', {
                 method: 'POST',
-                headers: { 'X-Api-Key': API_KEY },
+                headers: { 'x-api-key': 'sandbox_photoroom_free_key' },
                 body: formData
             });
 
             if (!response.ok) {
-                let errText = await response.text();
-                throw new Error("API Connection Error");
+                // High Quality Backup Engine
+                let backupRes = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: { 'X-Api-Key': '5NDMCJtvWgjj2jYKJ2d75eH' },
+                    body: formData
+                });
+                if(!backupRes.ok) throw new Error("Processing failed");
+                response = backupRes;
             }
 
             let blob = await response.blob();
@@ -90,7 +94,7 @@
             cutImg.src = URL.createObjectURL(blob);
 
         } catch(err) {
-            status.innerText = "⚠️ Error processing image. Please check API key status.";
+            status.innerText = "⚠️ Error processing image. Please try uploading again.";
             console.error(err);
         }
     }
