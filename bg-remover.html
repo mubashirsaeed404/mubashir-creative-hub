@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Background Remover - Mubashir Creative Hub</title>
-    <!-- Free AI Engine Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -33,7 +31,7 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Select photo for instant Free AI background removal</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for Remove.bg HD AI background removal</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
@@ -56,6 +54,7 @@
 </div>
 
 <script>
+    const API_KEY = '5NDMCJtvWgjj2jYKJ2d75eH';
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
@@ -64,20 +63,34 @@
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ AI Engine Processing... Removing background smoothly (Wait 5-10 sec)...";
+        status.innerText = "⏳ Processing image... Connecting with Remove.bg AI...";
+
+        let formData = new FormData();
+        formData.append('image_file', file);
+        formData.append('size', 'auto');
 
         try {
-            // Free Client-Side AI Background Removal Engine
-            const imageBlob = await imglyRemoveBackground(file);
-            
+            // Bypass browser CORS via proxy
+            let response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.remove.bg/v1.0/removebg'), {
+                method: 'POST',
+                headers: { 'X-Api-Key': API_KEY },
+                body: formData
+            });
+
+            if (!response.ok) {
+                let errText = await response.text();
+                throw new Error("API Connection Error");
+            }
+
+            let blob = await response.blob();
             cutImg.onload = function() {
                 renderCanvas();
-                status.innerText = "✅ Background Removed Perfectly!";
+                status.innerText = "✅ AI Background Removed Perfectly!";
             };
-            cutImg.src = URL.createObjectURL(imageBlob);
+            cutImg.src = URL.createObjectURL(blob);
 
         } catch(err) {
-            status.innerText = "⚠️ Processing Error: Please try another clear photo.";
+            status.innerText = "⚠️ Error processing image. Please check API key status.";
             console.error(err);
         }
     }
