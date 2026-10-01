@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HD Studio Background Remover</title>
-    <!-- TensorFlow & BodyPix Engine -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
+    <title>MediaPipe AI Background Remover</title>
+    <!-- MediaPipe Selfie Segmentation AI -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
@@ -22,7 +22,7 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .control-panel { background: #18181b; padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border); }
+        .slider-box { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
@@ -36,11 +36,11 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for Precision Studio Edge Trimming</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Google MediaPipe AI Cutout</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
-    <div id="status">⏳ Loading High-Precision AI Model...</div>
+    <div id="status">⏳ Initializing MediaPipe AI...</div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select Background Color:</label>
@@ -48,13 +48,12 @@
         <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
         <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
         <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
-        <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)">
+        <input type="color" id="custom-color" value="#cc0000" onchange="changeBg(this.value)">
     </div>
 
-    <div class="control-panel">
-        <label style="font-weight:bold;">Edge Trim (Halo Cleaner): </label>
-        <input type="range" id="edgeTrim" min="0" max="5" value="2" oninput="runSegmentation()">
-        <span id="trimValue">2px</span>
+    <div class="slider-box">
+        <label style="font-weight:bold;">Edge Cut Softness / Trim:</label>
+        <input type="range" id="edgeThreshold" min="0.3" max="0.9" step="0.05" value="0.65" oninput="reRender()">
     </div>
 
     <div class="preview-box">
@@ -65,116 +64,110 @@
 </div>
 
 <script>
-    let net = null;
-    let originalImg = null;
-    let currentColor = '#0055ff';
+    let currentColor = '#cc0000';
+    let loadedImage = null;
+    let selfieSegmentation = null;
+    let lastResults = null;
 
-    async function loadModel() {
-        let status = document.getElementById('status');
-        status.innerText = "⏳ Loading HD AI Engine...";
-        net = await bodyPix.load({
-            architecture: 'MobileNetV1',
-            outputStride: 8, // Higher precision edge detection
-            multiplier: 1.0,
-            quantBytes: 4
+    // Load Google MediaPipe Model
+    function initMediaPipe() {
+        selfieSegmentation = new SelfieSegmentation({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
         });
-        status.innerText = "✅ High Precision Engine Ready!";
-    }
-    loadModel();
 
-    async function processImage(e) {
+        selfieSegmentation.setOptions({
+            modelSelection: 1 // 1 = High-accuracy portrait model
+        });
+
+        selfieSegmentation.onResults(onResults);
+        document.getElementById('status').innerText = "✅ MediaPipe AI Engine Ready! Upload Photo.";
+    }
+
+    initMediaPipe();
+
+    function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
-        if(!net) return alert("AI Engine is initializing. Please wait 3 seconds.");
-
         let status = document.getElementById('status');
-        status.innerText = "🔍 Cleaning edges and removing background...";
+        status.innerText = "🔍 Precision AI is scanning subject & removing background...";
 
         let reader = new FileReader();
         reader.onload = function(event) {
             let img = new Image();
             img.onload = async function() {
-                originalImg = img;
-                await runSegmentation();
-                status.innerText = "✅ Background & Edge Bleed Removed Perfectly!";
+                loadedImage = img;
+                await selfieSegmentation.send({ image: loadedImage });
+                status.innerText = "✅ Studio Cutout Finished!";
             };
             img.src = event.target.result;
         };
         reader.readAsDataURL(file);
     }
 
-    async function runSegmentation() {
-        if(!originalImg || !net) return;
+    function onResults(results) {
+        lastResults = results;
+        renderCanvas();
+    }
 
-        let trimPixels = parseInt(document.getElementById('edgeTrim').value);
-        document.getElementById('trimValue').innerText = trimPixels + "px";
+    function renderCanvas() {
+        if(!lastResults || !loadedImage) return;
 
         let canvas = document.getElementById('out-canvas');
         let ctx = canvas.getContext('2d');
-        canvas.width = originalImg.width;
-        canvas.height = originalImg.height;
+        canvas.width = loadedImage.width;
+        canvas.height = loadedImage.height;
 
-        const segmentation = await net.segmentPerson(originalImg, {
-            internalResolution: 'full',
-            segmentationThreshold: 0.75,
-            edgeBlurAmount: 2
-        });
+        let thresh = parseFloat(document.getElementById('edgeThreshold').value);
 
-        // 1. Draw solid passport background
+        // 1. Fill solid background color
+        ctx.save();
         ctx.fillStyle = currentColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 2. Offscreen mask canvas creation
-        let maskCanvas = document.createElement('canvas');
-        maskCanvas.width = canvas.width;
-        maskCanvas.height = canvas.height;
-        let maskCtx = maskCanvas.getContext('2d');
+        // 2. Process segmentation mask with precision thresholding
+        let tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        let tempCtx = tempCanvas.getContext('2d');
 
-        let imgData = maskCtx.createImageData(canvas.width, canvas.height);
-        let maskPixels = imgData.data;
+        tempCtx.drawImage(lastResults.segmentationMask, 0, 0, canvas.width, canvas.height);
+        let maskData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+        let pixels = maskData.data;
 
-        // 3. Build Person Mask
-        for (let i = 0; i < segmentation.data.length; i++) {
-            if (segmentation.data[i] === 1) {
-                maskPixels[i * 4 + 3] = 255; // Keep subject
+        // Apply strict threshold to eliminate white outline bleed
+        for (let i = 0; i < pixels.length; i += 4) {
+            let alpha = pixels[i] / 255.0;
+            if (alpha < thresh) {
+                pixels[i + 3] = 0; // Cut background fully
+            } else {
+                pixels[i + 3] = 255;
             }
         }
-        maskCtx.putImageData(imgData, 0, 0);
+        tempCtx.putImageData(maskData, 0, 0);
 
-        // 4. Apply Edge Erosion (Cleans Cyan/Blue Borders)
-        let cleanMaskCanvas = document.createElement('canvas');
-        cleanMaskCanvas.width = canvas.width;
-        cleanMaskCanvas.height = canvas.height;
-        let cleanCtx = cleanMaskCanvas.getContext('2d');
+        // 3. Composite subject onto clean background
+        tempCtx.globalCompositeOperation = 'source-in';
+        tempCtx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
 
-        if (trimPixels > 0) {
-            cleanCtx.filter = `blur(${trimPixels}px)`;
-            cleanCtx.drawImage(maskCanvas, 0, 0);
-            cleanCtx.filter = 'none';
-            cleanCtx.globalCompositeOperation = 'source-in';
-            cleanCtx.drawImage(maskCanvas, 0, 0);
-        } else {
-            cleanCtx.drawImage(maskCanvas, 0, 0);
-        }
+        ctx.drawImage(tempCanvas, 0, 0);
+        ctx.restore();
+    }
 
-        // 5. Composite cleaned person image onto final canvas
-        cleanCtx.globalCompositeOperation = 'source-in';
-        cleanCtx.drawImage(originalImg, 0, 0);
-
-        ctx.drawImage(cleanMaskCanvas, 0, 0);
+    function reRender() {
+        renderCanvas();
     }
 
     function changeBg(color) {
         currentColor = color;
-        runSegmentation();
+        renderCanvas();
     }
 
     function downloadPhoto() {
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'clean_passport_photo.png';
+        a.download = 'studio_passport_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
