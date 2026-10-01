@@ -1,241 +1,80 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mubashir Creative Hub - Studio Tools</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <title>Mubashir Creative Hub - AI Studio & Online Tools</title>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
-        body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
-        header { background: #000; padding: 1.5rem; text-align: center; border-bottom: 2px solid var(--accent); }
-        header h1 { margin: 0; color: var(--accent); font-size: 1.8rem; }
-        .nav-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 1rem; background: #121215; }
-        .tab-btn { background: var(--card); color: #a1a1aa; border: 1px solid var(--border); padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .tab-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
-        .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: none; }
-        .tool-card.active { display: block; }
-        .upload-box { border: 2px dashed var(--accent); border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer; background: #202025; }
-        .controls { margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-        label { display: block; font-size: 0.85rem; color: #a1a1aa; margin-bottom: 4px; }
-        input, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: #09090b; color: #fff; box-sizing: border-box; }
-        button.action-btn { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; margin-top: 1rem; }
-        .preview-area { margin-top: 1.5rem; text-align: center; overflow: auto; }
-        canvas { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+        body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+        header { background: #000; padding: 2rem 1rem; text-align: center; border-bottom: 2px solid var(--accent); }
+        header h1 { margin: 0; color: var(--accent); font-size: 2.2rem; letter-spacing: 1px; }
+        header p { margin: 8px 0 0; color: #a1a1aa; font-size: 1rem; }
+        .container { max-width: 1100px; margin: 3rem auto; padding: 0 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.8rem; text-align: center; transition: 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 8px 24px rgba(234, 179, 8, 0.15); }
+        .card h3 { color: #fff; margin-top: 0; font-size: 1.3rem; }
+        .card p { color: #a1a1aa; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem; }
+        .btn { background: var(--accent); color: #000; font-weight: bold; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn:hover { background: #facc15; }
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: #71717a; font-size: 0.85rem; margin-top: 4rem; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>MUBASHIR CREATIVE HUB</h1>
-    <p style="margin:5px 0 0; color:#a1a1aa;">AI Photo Studio & Online Tools</p>
+    <p>Professional AI Photo Studio & Document Management Tools</p>
 </header>
 
-<div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTool('bg-remover')">Background Remover</button>
-    <button class="tab-btn" onclick="switchTool('suit-editor')">Tie & Coat Suit</button>
-    <button class="tab-btn" onclick="switchTool('resizer')">Image Resizer</button>
-    <button class="tab-btn" onclick="switchTool('img-pdf')">Image to PDF</button>
-    <button class="tab-btn" onclick="switchTool('pdf-word')">PDF to Text/Word</button>
-</div>
-
 <div class="container">
-    <!-- BG Remover -->
-    <div id="bg-remover" class="tool-card active">
-        <h2>Background Remover & Color Changer</h2>
-        <div class="upload-box" onclick="document.getElementById('bg-file').click()">
-            <p>Upload Image (Click to Select)</p>
-            <input type="file" id="bg-file" accept="image/*" style="display:none" onchange="loadBgImage(event)">
-        </div>
-        <div class="controls">
+    <div class="grid">
+        <div class="card">
             <div>
-                <label>Background Color</label>
-                <input type="color" id="bg-color" value="#0066cc" onchange="processBg()">
+                <h3>✂️ AI Background Remover</h3>
+                <p>Automatic background removal with studio passport background colors (Official Blue, White, Red, Gray).</p>
             </div>
-            <div>
-                <label>Tolerance / Threshold</label>
-                <input type="range" id="bg-thresh" min="1" max="100" value="30" onchange="processBg()">
-            </div>
+            <a href="bg-remover.html" class="btn">Open Tool</a>
         </div>
-        <div class="preview-area"><canvas id="bg-canvas"></canvas></div>
-        <button class="action-btn" onclick="downloadCanvas('bg-canvas', 'bg_removed.png')">Download Image</button>
-    </div>
 
-    <!-- Suit Editor -->
-    <div id="suit-editor" class="tool-card">
-        <h2>Formal Suit / Coat Adjustment</h2>
-        <div class="upload-box" onclick="document.getElementById('suit-file').click()">
-            <p>Upload Photo (Face & Hair will stay 100% same)</p>
-            <input type="file" id="suit-file" accept="image/*" style="display:none" onchange="loadSuitImage(event)">
-        </div>
-        <div class="controls">
+        <div class="card">
             <div>
-                <label>Suit Overlay Position Y</label>
-                <input type="range" id="suit-y" min="-100" max="100" value="0" oninput="drawSuit()">
+                <h3>👔 Tie & Suit Overlay</h3>
+                <p>Apply HD formal suits and coat templates while keeping original face and hairstyle intact.</p>
             </div>
-            <div>
-                <label>Suit Size / Scale</label>
-                <input type="range" id="suit-scale" min="50" max="150" value="100" oninput="drawSuit()">
-            </div>
+            <a href="suit-editor.html" class="btn">Open Tool</a>
         </div>
-        <div class="preview-area"><canvas id="suit-canvas"></canvas></div>
-        <button class="action-btn" onclick="downloadCanvas('suit-canvas', 'suit_passport.png')">Download Passport Photo</button>
-    </div>
 
-    <!-- Resizer -->
-    <div id="resizer" class="tool-card">
-        <h2>Image Resizer (Passport / CNIC)</h2>
-        <div class="upload-box" onclick="document.getElementById('resize-file').click()">
-            <p>Upload Image to Resize</p>
-            <input type="file" id="resize-file" accept="image/*" style="display:none" onchange="loadResizeImage(event)">
-        </div>
-        <div class="controls">
+        <div class="card">
             <div>
-                <label>Width (px)</label>
-                <input type="number" id="img-w" value="350">
+                <h3>📐 Image Resizer</h3>
+                <p>Instant resize presets for Pakistan Passport, US Visa, CNIC, and custom dimensions.</p>
             </div>
+            <a href="resizer.html" class="btn">Open Tool</a>
+        </div>
+
+        <div class="card">
             <div>
-                <label>Height (px)</label>
-                <input type="number" id="img-h" value="450">
+                <h3>📄 Image to PDF</h3>
+                <p>Combine multiple photo files into a single structured PDF document instantly.</p>
             </div>
+            <a href="pdf-tools.html" class="btn">Open Tool</a>
         </div>
-        <button class="action-btn" onclick="processResize()">Resize & Download</button>
-    </div>
 
-    <!-- Image to PDF -->
-    <div id="img-pdf" class="tool-card">
-        <h2>Image to PDF Converter</h2>
-        <div class="upload-box" onclick="document.getElementById('pdf-imgs').click()">
-            <p>Upload Images for PDF</p>
-            <input type="file" id="pdf-imgs" accept="image/*" multiple style="display:none">
+        <div class="card">
+            <div>
+                <h3>📝 PDF to Word / Text</h3>
+                <p>Extract editable text content from PDF documents and export directly to Word (.doc) format.</p>
+            </div>
+            <a href="pdf-tools.html" class="btn">Open Tool</a>
         </div>
-        <button class="action-btn" onclick="convertToPdf()">Generate PDF Document</button>
-    </div>
-
-    <!-- PDF to Word -->
-    <div id="pdf-word" class="tool-card">
-        <h2>PDF to Word / Text Converter</h2>
-        <div class="upload-box" onclick="document.getElementById('pdf-file').click()">
-            <p>Upload PDF Document</p>
-            <input type="file" id="pdf-file" accept="application/pdf" style="display:none" onchange="extractPdfText(event)">
-        </div>
-        <textarea id="pdf-text-out" rows="10" placeholder="Extracted text will appear here..." style="margin-top:1rem;"></textarea>
-        <button class="action-btn" onclick="downloadDoc()">Download as Word (.doc)</button>
     </div>
 </div>
 
-<script>
-    function switchTool(id) {
-        document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        event.target.classList.add('active');
-    }
+<footer>
+    © 2026 Mubashir Creative Hub. All Rights Reserved.
+</footer>
 
-    let bgImg = new Image(), suitImg = new Image(), resizeImg = new Image();
-
-    function loadBgImage(e) {
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            bgImg.onload = processBg;
-            bgImg.src = event.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    }
-
-    function processBg() {
-        if (!bgImg.src) return;
-        let canvas = document.getElementById('bg-canvas');
-        let ctx = canvas.getContext('2d');
-        canvas.width = bgImg.width;
-        canvas.height = bgImg.height;
-        ctx.fillStyle = document.getElementById('bg-color').value;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(bgImg, 0, 0);
-    }
-
-    function loadSuitImage(e) {
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            suitImg.onload = drawSuit;
-            suitImg.src = event.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    }
-
-    function drawSuit() {
-        if (!suitImg.src) return;
-        let canvas = document.getElementById('suit-canvas');
-        let ctx = canvas.getContext('2d');
-        canvas.width = suitImg.width;
-        canvas.height = suitImg.height;
-        ctx.drawImage(suitImg, 0, 0);
-    }
-
-    function loadResizeImage(e) {
-        let reader = new FileReader();
-        reader.onload = function(event) { resizeImg.src = event.target.result; };
-        reader.readAsDataURL(e.target.files[0]);
-    }
-
-    function processResize() {
-        if (!resizeImg.src) return;
-        let canvas = document.createElement('canvas');
-        canvas.width = document.getElementById('img-w').value;
-        canvas.height = document.getElementById('img-h').value;
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(resizeImg, 0, 0, canvas.width, canvas.height);
-        downloadCanvas(canvas, 'resized.png', true);
-    }
-
-    function downloadCanvas(cId, name, isDirect = false) {
-        let canvas = isDirect ? cId : document.getElementById(cId);
-        let link = document.createElement('a');
-        link.download = name;
-        link.href = canvas.toDataURL();
-        link.click();
-    }
-
-    async function convertToPdf() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        let files = document.getElementById('pdf-imgs').files;
-        for (let i = 0; i < files.length; i++) {
-            let imgData = await new Promise(r => {
-                let rd = new FileReader();
-                rd.onload = e => r(e.target.result);
-                rd.readAsDataURL(files[i]);
-            });
-            if (i > 0) doc.addPage();
-            doc.addImage(imgData, 'JPEG', 10, 10, 180, 240);
-        }
-        doc.save('document.pdf');
-    }
-
-    async function extractPdfText(e) {
-        let file = e.target.files[0];
-        let typedarray = new Uint8Array(await file.arrayBuffer());
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-        let pdf = await pdfjsLib.getDocument(typedarray).promise;
-        let fullText = '';
-        for (let i = 1; i <= pdf.numPages; i++) {
-            let page = await pdf.getPage(i);
-            let textContent = await page.getTextContent();
-            fullText += textContent.items.map(s => s.str).join(' ') + '\n\n';
-        }
-        document.getElementById('pdf-text-out').value = fullText;
-    }
-
-    function downloadDoc() {
-        let text = document.getElementById('pdf-text-out').value;
-        let blob = new Blob([text], { type: 'application/msword' });
-        let link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'document.doc';
-        link.click();
-    }
-</script>
 </body>
 </html>
