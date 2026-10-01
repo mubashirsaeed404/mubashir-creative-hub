@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Passport Studio Editor</title>
+    <!-- Load TensorFlow.js & BodyPix Model Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -18,8 +21,6 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .key-box { background: #18181b; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px; }
-        .key-input { width: 100%; padding: 8px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -31,19 +32,13 @@
 <div class="container">
     <a href="index.html" class="back-link">← Back to Main Hub</a>
 
-    <div class="key-box">
-        <label style="font-size:0.85rem; color:var(--accent); font-weight:bold;">🔑 Remove.bg API Keys (Comma separated for Unlimited Auto-Rotate):</label>
-        <input type="text" id="api-keys" class="key-input" placeholder="Paste key 1, key 2, key 3...">
-        <p style="font-size:0.75rem; color:#a1a1aa; margin:5px 0 0 0;">Free key create karne ke liye <a href="https://www.remove.bg/api" target="_blank" style="color:var(--accent);">Remove.bg API</a> par visit karein.</p>
-    </div>
-
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for Studio AI Cutout</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for Browser-Native AI Cutout</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
-    <div id="status"></div>
+    <div id="status">⚡ Loading Browser AI Engine... Please wait a moment.</div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select New Background Color:</label>
@@ -62,67 +57,55 @@
 </div>
 
 <script>
-    let cutImg = new Image();
+    let net = null;
+    let loadedImg = new Image();
     let currentColor = '#0055ff';
+    let personSegmentation = null;
 
-    // Auto Load Saved Keys
-    document.getElementById('api-keys').value = localStorage.getItem('studio_bg_keys') || '';
-    document.getElementById('api-keys').addEventListener('input', function() {
-        localStorage.setItem('studio_bg_keys', this.value.trim());
-    });
+    // Preload TensorFlow BodyPix Model
+    async function loadModel() {
+        let status = document.getElementById('status');
+        try {
+            net = await bodyPix.load({
+                architecture: 'MobileNetV1',
+                outputStride: 16,
+                multiplier: 0.75,
+                quantBytes: 2
+            });
+            status.innerText = "✅ AI Engine Ready! Upload an image to edit background.";
+        } catch(e) {
+            status.innerText = "⚠️ Failed to load local AI model. Check your internet connection for CDN libraries.";
+        }
+    }
+    loadModel();
 
     async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
         let status = document.getElementById('status');
-        let rawKeys = document.getElementById('api-keys').value.trim();
-        
-        if(!rawKeys) {
-            status.innerText = "⚠️ Please enter at least 1 free Remove.bg API key above!";
+        if(!net) {
+            status.innerText = "⏳ AI Engine is still loading, please wait a few seconds...";
             return;
         }
 
-        let keysArray = rawKeys.split(',').map(k => k.trim()).filter(k => k.length > 0);
-        status.innerText = "⏳ Processing HD Studio Cutout... Please wait.";
+        status.innerText = "⏳ Segmenting photo with Browser AI... Please wait.";
 
-        let success = false;
-
-        for (let apiKey of keysArray) {
-            try {
-                let formData = new FormData();
-                formData.append('image_file', file);
-                formData.append('size', 'auto');
-
-                let response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                    method: 'POST',
-                    headers: { 'X-Api-Key': apiKey },
-                    body: formData
+        let reader = new FileReader();
+        reader.onload = function(event) {
+            loadedImg.onload = async function() {
+                // Segment Person from Image
+                personSegmentation = await net.segmentPerson(loadedImg, {
+                    internalResolution: 'medium',
+                    segmentationThreshold: 0.7
                 });
 
-                if (response.ok) {
-                    let blob = await response.blob();
-                    loadCutout(blob);
-                    success = true;
-                    break;
-                }
-            } catch(err) {
-                console.log("Key failed, trying next...", err);
-            }
-        }
-
-        if(!success) {
-            status.innerText = "⚠️ All entered API keys failed or ran out of credits. Please add a new free key!";
-        }
-    }
-
-    function loadCutout(blob) {
-        let status = document.getElementById('status');
-        cutImg.onload = function() {
-            renderCanvas();
-            status.innerText = "✅ Background Removed Perfectly with HD AI Cutout!";
+                renderCanvas();
+                status.innerText = "✅ Background replaced successfully with AI!";
+            };
+            loadedImg.src = event.target.result;
         };
-        cutImg.src = URL.createObjectURL(blob);
+        reader.readAsDataURL(file);
     }
 
     function changeBg(color) {
@@ -131,17 +114,38 @@
     }
 
     function renderCanvas() {
-        if(!cutImg.src) return;
+        if(!loadedImg.src || !personSegmentation) return;
+
         let canvas = document.getElementById('out-canvas');
         let ctx = canvas.getContext('2d');
         
-        canvas.width = cutImg.width;
-        canvas.height = cutImg.height;
+        canvas.width = loadedImg.width;
+        canvas.height = loadedImg.height;
 
+        // Draw Selected Background Color
         ctx.fillStyle = currentColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.drawImage(cutImg, 0, 0);
+        // Draw Original Photo
+        let tempCanvas = document.createElement('canvas');
+        tempCanvas.width = loadedImg.width;
+        tempCanvas.height = loadedImg.height;
+        let tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(loadedImg, 0, 0);
+
+        let imgData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+        let pixels = imgData.data;
+
+        // Apply Mask for Person Cutout
+        for (let i = 0; i < personSegmentation.data.length; i++) {
+            if (personSegmentation.data[i] === 0) { // Background pixel
+                pixels[i * 4 + 3] = 0; // Make background transparent
+            }
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+
+        // Overlay Person Cutout on Color Background
+        ctx.drawImage(tempCanvas, 0, 0);
     }
 
     function downloadPhoto() {
