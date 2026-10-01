@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Studio Background Remover</title>
-    <!-- TensorFlow & BodyPix AI Models -->
+    <title>HD Studio Background Remover</title>
+    <!-- TensorFlow & BodyPix Engine -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
 
@@ -22,6 +22,7 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
+        .control-panel { background: #18181b; padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
@@ -35,11 +36,11 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for Automatic AI Object Detection</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for Precision Studio Edge Trimming</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
-    <div id="status">⏳ Loading AI Model, please wait...</div>
+    <div id="status">⏳ Loading High-Precision AI Model...</div>
 
     <div class="color-presets">
         <label style="font-weight:bold;">Select Background Color:</label>
@@ -48,6 +49,12 @@
         <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
         <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
         <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)">
+    </div>
+
+    <div class="control-panel">
+        <label style="font-weight:bold;">Edge Trim (Halo Cleaner): </label>
+        <input type="range" id="edgeTrim" min="0" max="5" value="2" oninput="runSegmentation()">
+        <span id="trimValue">2px</span>
     </div>
 
     <div class="preview-box">
@@ -62,17 +69,16 @@
     let originalImg = null;
     let currentColor = '#0055ff';
 
-    // Initialize TensorFlow BodyPix Model
     async function loadModel() {
         let status = document.getElementById('status');
-        status.innerText = "⏳ Loading AI Engine... (First time may take a few seconds)";
+        status.innerText = "⏳ Loading HD AI Engine...";
         net = await bodyPix.load({
             architecture: 'MobileNetV1',
-            outputStride: 16,
-            multiplier: 0.75,
-            quantBytes: 2
+            outputStride: 8, // Higher precision edge detection
+            multiplier: 1.0,
+            quantBytes: 4
         });
-        status.innerText = "✅ AI Engine Ready! Please Upload Photo.";
+        status.innerText = "✅ High Precision Engine Ready!";
     }
     loadModel();
 
@@ -80,13 +86,10 @@
         let file = e.target.files[0];
         if(!file) return;
 
-        if(!net) {
-            alert("AI Model is still loading, please wait a moment.");
-            return;
-        }
+        if(!net) return alert("AI Engine is initializing. Please wait 3 seconds.");
 
         let status = document.getElementById('status');
-        status.innerText = "🔍 AI is detecting person & cutting background...";
+        status.innerText = "🔍 Cleaning edges and removing background...";
 
         let reader = new FileReader();
         reader.onload = function(event) {
@@ -94,7 +97,7 @@
             img.onload = async function() {
                 originalImg = img;
                 await runSegmentation();
-                status.innerText = "✅ Background Removed Successfully!";
+                status.innerText = "✅ Background & Edge Bleed Removed Perfectly!";
             };
             img.src = event.target.result;
         };
@@ -104,41 +107,62 @@
     async function runSegmentation() {
         if(!originalImg || !net) return;
 
+        let trimPixels = parseInt(document.getElementById('edgeTrim').value);
+        document.getElementById('trimValue').innerText = trimPixels + "px";
+
         let canvas = document.getElementById('out-canvas');
         let ctx = canvas.getContext('2d');
         canvas.width = originalImg.width;
         canvas.height = originalImg.height;
 
-        // Perform AI Person Detection
         const segmentation = await net.segmentPerson(originalImg, {
-            internalResolution: 'medium',
-            segmentationThreshold: 0.7
+            internalResolution: 'full',
+            segmentationThreshold: 0.75,
+            edgeBlurAmount: 2
         });
 
-        // Draw Selected Studio Background
+        // 1. Draw solid passport background
         ctx.fillStyle = currentColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Get Image Pixels
-        let tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-        let tempCtx = tempCanvas.getContext('2d');
-        tempCtx.drawImage(originalImg, 0, 0);
+        // 2. Offscreen mask canvas creation
+        let maskCanvas = document.createElement('canvas');
+        maskCanvas.width = canvas.width;
+        maskCanvas.height = canvas.height;
+        let maskCtx = maskCanvas.getContext('2d');
 
-        let imgData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
-        let pixels = imgData.data;
+        let imgData = maskCtx.createImageData(canvas.width, canvas.height);
+        let maskPixels = imgData.data;
 
-        // Apply AI Mask: Keep person pixels, remove background
+        // 3. Build Person Mask
         for (let i = 0; i < segmentation.data.length; i++) {
-            if (segmentation.data[i] === 0) {
-                // Background pixel -> make transparent
-                pixels[i * 4 + 3] = 0;
+            if (segmentation.data[i] === 1) {
+                maskPixels[i * 4 + 3] = 255; // Keep subject
             }
         }
+        maskCtx.putImageData(imgData, 0, 0);
 
-        tempCtx.putImageData(imgData, 0, 0);
-        ctx.drawImage(tempCanvas, 0, 0);
+        // 4. Apply Edge Erosion (Cleans Cyan/Blue Borders)
+        let cleanMaskCanvas = document.createElement('canvas');
+        cleanMaskCanvas.width = canvas.width;
+        cleanMaskCanvas.height = canvas.height;
+        let cleanCtx = cleanMaskCanvas.getContext('2d');
+
+        if (trimPixels > 0) {
+            cleanCtx.filter = `blur(${trimPixels}px)`;
+            cleanCtx.drawImage(maskCanvas, 0, 0);
+            cleanCtx.filter = 'none';
+            cleanCtx.globalCompositeOperation = 'source-in';
+            cleanCtx.drawImage(maskCanvas, 0, 0);
+        } else {
+            cleanCtx.drawImage(maskCanvas, 0, 0);
+        }
+
+        // 5. Composite cleaned person image onto final canvas
+        cleanCtx.globalCompositeOperation = 'source-in';
+        cleanCtx.drawImage(originalImg, 0, 0);
+
+        ctx.drawImage(cleanMaskCanvas, 0, 0);
     }
 
     function changeBg(color) {
@@ -150,7 +174,7 @@
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'passport_studio_photo.png';
+        a.download = 'clean_passport_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
