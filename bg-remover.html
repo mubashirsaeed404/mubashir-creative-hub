@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Passport Studio Editor</title>
+    <title>AI Background Remover Studio</title>
+    <!-- Load Imgly AI Model in Browser -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -14,11 +16,10 @@
         .upload-area { border: 2px dashed var(--accent); background: #1a1a1e; border-radius: 12px; padding: 2.5rem; text-align: center; cursor: pointer; }
         .color-presets { display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
         .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
-        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 280px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; }
+        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; }
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .slider-box { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
@@ -32,7 +33,7 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for instant Studio Background Replacement</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Deep AI Background Removal</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
@@ -47,38 +48,37 @@
         <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)">
     </div>
 
-    <div class="slider-box">
-        <label style="font-weight:bold;">Background Tolerance:</label>
-        <input type="range" id="tolerance" min="10" max="150" value="45" oninput="renderCanvas()">
-    </div>
-
     <div class="preview-box">
         <canvas id="out-canvas"></canvas>
     </div>
 
-    <button class="dl-btn" onclick="downloadPhoto()">Download Passport Photo</button>
+    <button class="dl-btn" onclick="downloadPhoto()">Download Studio Photo</button>
 </div>
 
 <script>
-    let rawImg = new Image();
+    let cutImg = new Image();
     let currentColor = '#0055ff';
 
-    function processImage(e) {
+    async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ Processing photo...";
+        status.innerText = "⏳ AI model is detecting person & removing background... Please wait 5-10 seconds.";
 
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            rawImg.onload = function() {
+        try {
+            // Real Neural Network AI Model Execution
+            let blob = await imglyRemoveBackground(file);
+            cutImg.onload = function() {
                 renderCanvas();
-                status.innerText = "✅ Background Replaced Successfully!";
+                status.innerText = "✅ AI Background Cutout Finished Perfectly!";
             };
-            rawImg.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+            cutImg.src = URL.createObjectURL(blob);
+
+        } catch(err) {
+            status.innerText = "⚠️ Error in AI processing. Please reload and try again.";
+            console.error(err);
+        }
     }
 
     function changeBg(color) {
@@ -86,54 +86,27 @@
         renderCanvas();
     }
 
-    function hexToRgb(hex) {
-        let c = hex.replace('#', '');
-        if (c.length === 3) c = c.split('').map(x => x + x).join('');
-        let num = parseInt(c, 16);
-        return [num >> 16, (num >> 8) & 255, num & 255];
-    }
-
     function renderCanvas() {
-        if(!rawImg.src) return;
+        if(!cutImg.src) return;
         let canvas = document.getElementById('out-canvas');
         let ctx = canvas.getContext('2d');
         
-        canvas.width = rawImg.width;
-        canvas.height = rawImg.height;
+        canvas.width = cutImg.width;
+        canvas.height = cutImg.height;
 
-        ctx.drawImage(rawImg, 0, 0);
-        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imgData.data;
+        // Fill Passport Background
+        ctx.fillStyle = currentColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        let bgR = data[0];
-        let bgG = data[1];
-        let bgB = data[2];
-
-        let targetRgb = hexToRgb(currentColor);
-        let tol = parseInt(document.getElementById('tolerance').value);
-
-        for (let i = 0; i < data.length; i += 4) {
-            let r = data[i];
-            let g = data[i+1];
-            let b = data[i+2];
-
-            let dist = Math.sqrt((r - bgR)**2 + (g - bgG)**2 + (b - bgB)**2);
-
-            if (dist < tol) {
-                data[i] = targetRgb[0];
-                data[i+1] = targetRgb[1];
-                data[i+2] = targetRgb[2];
-            }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
+        // Draw Cutout Person
+        ctx.drawImage(cutImg, 0, 0);
     }
 
     function downloadPhoto() {
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'passport_photo.png';
+        a.download = 'studio_passport_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
