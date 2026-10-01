@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Passport Studio Editor</title>
+    <!-- 100% Free Client-Side WASM Engine (No API Key Required) -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.umd.min.js"></script>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -31,7 +33,7 @@
 
     <div class="upload-area" onclick="document.getElementById('file-in').click()">
         <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for Automatic Instant Studio Cutout</p>
+        <p style="color:#a1a1aa; margin:0;">Click to select photo for Automatic Studio Cutout (100% Free & Unlimited)</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
     </div>
 
@@ -57,64 +59,32 @@
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
-    // Backup Keys Pool (Auto failover if one key exhausts)
-    const API_KEYS = [
-        '5NDMCJtvWgjj2jYKJ2d75eH',
-        '2qR98J43x81MskpB9q90LqM', // Fallback slot
-    ];
-
-    async function removeBgWithRetry(file) {
-        let formData = new FormData();
-        formData.append('image_file', file);
-        formData.append('size', 'auto');
-
-        // Try direct proxy endpoint to prevent CORS & Quota error
-        for (let key of API_KEYS) {
-            try {
-                let res = await fetch(`https://api.remove.bg/v1.0/removebg`, {
-                    method: 'POST',
-                    headers: { 'X-Api-Key': key },
-                    body: formData
-                });
-
-                if (res.ok) {
-                    return await res.blob();
-                }
-            } catch (e) {
-                console.log("Trying next fallback channel...");
-            }
-        }
-
-        // Emergency Fallback: PhotoRoom Public API Proxy
-        let prData = new FormData();
-        prData.append('image_file', file);
-        let prRes = await fetch('https://sdk.photoroom.com/v1/segment', {
-            method: 'POST',
-            headers: { 'x-api-key': 'freemium' },
-            body: prData
-        });
-
-        if (prRes.ok) return await prRes.blob();
-
-        throw new Error("API Limit reached. Please refresh or update API Key.");
-    }
-
     async function processImage(e) {
         let file = e.target.files[0];
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ Processing HD Studio Cutout... Please wait.";
+        status.innerText = "⏳ Processing HD AI Cutout locally in browser... Please wait 3-5 seconds.";
 
         try {
-            let blob = await removeBgWithRetry(file);
+            // High-precision local WASM neural network execution
+            let blob = await imglyRemoveBackground(file, {
+                model: 'medium', // High accuracy cutout model
+                progress: (key, current, total) => {
+                    if (key.startsWith('fetch')) {
+                        status.innerText = `⏳ Loading AI Engine components (${Math.round((current/total)*100)}%)...`;
+                    }
+                }
+            });
+
             cutImg.onload = function() {
                 renderCanvas();
                 status.innerText = "✅ Background Removed Perfectly!";
             };
             cutImg.src = URL.createObjectURL(blob);
+
         } catch(err) {
-            status.innerText = "⚠️ API Limit Exhausted. Remove.bg par 1-click mein free new key bana kar code mein update kar dein.";
+            status.innerText = "⚠️ Error processing image. Please try another clear portrait photo.";
             console.error(err);
         }
     }
