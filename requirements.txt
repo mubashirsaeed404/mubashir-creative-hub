@@ -1,5 +1,0 @@
-flask
-flask-cors
-rembg
-pillow
-gunicorn
