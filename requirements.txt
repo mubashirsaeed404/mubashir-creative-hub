@@ -1,0 +1,6 @@
+Flask
+flask-cors
+rembg
+Pillow
+onnxruntime
+gunicorn
