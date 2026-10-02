@@ -1,6 +1,5 @@
-Flask
+flask
 flask-cors
 rembg
-Pillow
-onnxruntime
+pillow
 gunicorn
