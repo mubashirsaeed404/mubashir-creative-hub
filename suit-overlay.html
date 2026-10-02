@@ -3,7 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tie & Suit Overlay - Mubashir Photo Studio</title>
+    
+    <!-- SEO Meta Tags for Google Search Ranking -->
+    <title>Online Suit & Tie Overlay Tool | Mubashir Photo Studio</title>
+    <meta name="description" content="Add formal suits, coat, and tie overlay to your passport photo online. Free background color change for Pakistan Passport, CNIC, and Visa photos at Mubashir Photo Studio.">
+    <meta name="keywords" content="passport photo suit editor, formal suit overlay online, coat tie png editor, pakistan passport background changer, mubashir photo studio">
+    <meta name="author" content="Mubashir Saeed">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Tags for Social Media Sharing -->
+    <meta property="og:title" content="Tie & Suit Overlay Tool - Mubashir Photo Studio">
+    <meta property="og:description" content="Instantly add HD formal suits, coat, and tie to your photo online. Free passport photo editor.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mubashir-creative-hub.vercel.app/suit-overlay.html">
+
+    <!-- Google Structured Data Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Tie & Suit Overlay Tool",
+      "url": "https://mubashir-creative-hub.vercel.app/suit-overlay.html",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All",
+      "author": {
+        "@type": "Person",
+        "name": "Mubashir Saeed"
+      },
+      "description": "Online tool to add coat, suit, and tie overlay to passport photos with custom background colors."
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -166,7 +196,7 @@
         canvas.width = 600;
         canvas.height = 800;
 
-        // Sample HD Vector Suit Templates (SVGs Data URLs)
+        // Sample HD Vector Suit Templates
         const suits = [
             {
                 name: "Classic Dark Blue Suit",
@@ -222,25 +252,21 @@
 
         // Canvas Redraw Logic
         function renderCanvas() {
-            // 1. Clear Canvas & Fill Background
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 2. Draw User Photo (if available)
             if (userImg) {
                 const scale = Math.max(canvas.width / userImg.width, canvas.height / userImg.height);
                 const x = (canvas.width / 2) - (userImg.width / 2) * scale;
                 const y = (canvas.height / 2) - (userImg.height / 2) * scale;
                 ctx.drawImage(userImg, x, y, userImg.width * scale, userImg.height * scale);
             } else {
-                // Placeholder Text
                 ctx.fillStyle = "#a1a1aa";
                 ctx.font = "20px Segoe UI";
                 ctx.textAlign = "center";
                 ctx.fillText("Please Upload Your Photo", canvas.width / 2, canvas.height / 2);
             }
 
-            // 3. Draw Suit Overlay with Transformation
             if (suitImg.complete) {
                 ctx.save();
                 ctx.translate(canvas.width / 2 + suitState.x, canvas.height / 2 + suitState.y + 100);
