@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Formal Suit & Tie Overlay Studio | Mubashir Photo Studio</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Transform your photos with formal suit & tie overlays or AI auto-generation for official passport photos, visas, CVs, and LinkedIn profiles at Mubashir Photo Studio.">
+    <meta name="keywords" content="Mubashir Photo Studio, passport photo suit overlay, official coat tie editor, AI suit generator, online suit editor, passport suit overlay">
+    <meta name="author" content="Mubashir Photo Studio & Creative Hub">
+
+    <!-- Fonts & Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        studio: {
+                            bg: '#0f0f11',
+                            card: '#18181b',
+                            border: '#27272a',
+                            accent: '#eab308',
+                            accentHover: '#ca8a04',
+                            text: '#f4f4f5',
+                            muted: '#a1a1aa'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #0f0f11;
+            color: #f4f4f5;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f0f11;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #eab308;
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.25);
+        }
+
+        .gold-glow-hover:hover {
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.4);
+        }
+
+        /* Loading spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-fast {
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-studio-border bg-studio-card/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-studio-accent flex items-center justify-center text-black font-bold text-xl shadow-lg">
+                    <i class="fa-solid fa-camera-retro"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-studio-text flex items-center gap-2">
+                        Mubashir Studio <span class="text-xs bg-studio-accent/20 text-studio-accent px-2 py-0.5 rounded border border-studio-accent/40 font-semibold">Pro Hub</span>
+                    </h1>
+                    <p class="text-xs text-studio-muted">AI Suit & Passport Photo Editor</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-sm text-studio-muted hover:text-studio-accent transition flex items-center gap-2 bg-studio-bg px-3 py-1.5 rounded-md border border-studio-border">
+                    <i class="fa-solid fa-arrow-left text-xs"></i> Main Hub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+
+        <!-- Banner & Mode Switcher -->
+        <div class="bg-studio-card border border-studio-border rounded-xl p-4 sm:p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-studio-text">Formal Suit & Tie Studio</h2>
+                <p class="text-sm text-studio-muted mt-1">Convert raw portraits into crisp official passport & visa photos manually or using Gemini AI.</p>
+            </div>
+            
+            <!-- Mode Switcher Tabs -->
+            <div class="flex bg-studio-bg p-1 rounded-lg border border-studio-border w-full md:w-auto">
+                <button id="tab-canvas" onclick="switchMode('canvas')" class="flex-1 md:flex-none px-5 py-2.5 rounded-md font-medium text-sm transition flex items-center justify-center gap-2 bg-studio-accent text-black font-semibold shadow">
+                    <i class="fa-solid fa-sliders"></i> Studio Canvas (Manual)
+                </button>
+                <button id="tab-ai" onclick="switchMode('ai')" class="flex-1 md:flex-none px-5 py-2.5 rounded-md font-medium text-sm transition flex items-center justify-center gap-2 text-studio-muted hover:text-studio-text">
+                    <i class="fa-solid fa-wand-magic-sparkles text-studio-accent"></i> Gemini AI Auto-Transform
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= MODE A: CANVAS STUDIO (MANUAL OVERLAY) ================= -->
+        <section id="sec-canvas-mode" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Panel: Controls & Preset Suits -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <!-- 1. Photo Upload Card -->
+                <div class="bg-studio-card border border-studio-border rounded-xl p-5">
+                    <h3 class="text-sm font-semibold text-studio-text uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-studio-accent"></i> 1. Upload Base Photo
+                    </h3>
+                    <div id="drop-zone" class="border-2 border-dashed border-studio-border hover:border-studio-accent rounded-lg p-6 text-center transition cursor-pointer bg-studio-bg/50">
+                        <input type="file" id="user-photo-input" accept="image/*" class="hidden" onchange="handleUserPhoto(event)">
+                        <i class="fa-solid fa-user-tie text-3xl text-studio-muted mb-2"></i>
+                        <p class="text-sm font-medium text-studio-text">Drag & drop your photo here</p>
+                        <p class="text-xs text-studio-muted mt-1">or click to browse from device</p>
+                    </div>
+                </div>
+
+                <!-- 2. Suit Selector Grid -->
+                <div class="bg-studio-card border border-studio-border rounded-xl p-5">
+                    <h3 class="text-sm font-semibold text-studio-text uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-shirt text-studio-accent"></i> 2. Choose Formal Suit Template
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3" id="suit-presets-container">
+                        <!-- Presets injected by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- 3. Positioning & Adjustments -->
+                <div class="bg-studio-card border border-studio-border rounded-xl p-5 flex flex-col gap-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-studio-text uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-up-down-left-right text-studio-accent"></i> 3. Align & Scale Suit
+                        </h3>
+                        <button onclick="resetSuitTransform()" class="text-xs text-studio-accent hover:underline flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Alignment
+                        </button>
+                    </div>
+
+                    <!-- Scale Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs text-studio-muted mb-1">
+                            <span>Suit Scale (Size)</span>
+                            <span id="val-scale">100%</span>
+                        </div>
+                        <input type="range" id="slider-scale" min="0.3" max="2.5" step="0.01" value="1" oninput="updateSuitFromControls()" class="w-full accent-yellow-500">
+                    </div>
+
+                    <!-- Rotation Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs text-studio-muted mb-1">
+                            <span>Rotation Angle</span>
+                            <span id="val-rotate">0°</span>
+                        </div>
+                        <input type="range" id="slider-rotate" min="-45" max="45" step="0.5" value="0" oninput="updateSuitFromControls()" class="w-full accent-yellow-500">
+                    </div>
+
+                    <!-- Horizontal Shift Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs text-studio-muted mb-1">
+                            <span>Horizontal Shift (X)</span>
+                            <span id="val-posX">0px</span>
+                        </div>
+                        <input type="range" id="slider-posX" min="-250" max="250" step="1" value="0" oninput="updateSuitFromControls()" class="w-full accent-yellow-500">
+                    </div>
+
+                    <!-- Vertical Shift Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs text-studio-muted mb-1">
+                            <span>Vertical Shift (Y)</span>
+                            <span id="val-posY">0px</span>
+                        </div>
+                        <input type="range" id="slider-posY" min="-250" max="250" step="1" value="0" oninput="updateSuitFromControls()" class="w-full accent-yellow-500">
+                    </div>
+
+                    <!-- Background Color Preset -->
+                    <div>
+                        <label class="text-xs text-studio-muted block mb-2">Passport Background Fill</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="setBgColor('#0066cc')" class="h-8 rounded border border-studio-border flex items-center justify-center text-xs text-white font-medium bg-[#0066cc] hover:ring-2 ring-yellow-400">Blue</button>
+                            <button onclick="setBgColor('#ffffff')" class="h-8 rounded border border-studio-border flex items-center justify-center text-xs text-black font-medium bg-[#ffffff] hover:ring-2 ring-yellow-400">White</button>
+                            <button onclick="setBgColor('#808080')" class="h-8 rounded border border-studio-border flex items-center justify-center text-xs text-white font-medium bg-[#808080] hover:ring-2 ring-yellow-400">Gray</button>
+                            <button onclick="setBgColor('#cc0000')" class="h-8 rounded border border-studio-border flex items-center justify-center text-xs text-white font-medium bg-[#cc0000] hover:ring-2 ring-yellow-400">Red</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Interactive Canvas Studio View -->
+            <div class="lg:col-span-7 flex flex-col gap-4">
+                <div class="bg-studio-card border border-studio-border rounded-xl p-5 flex flex-col items-center justify-center relative min-h-[500px]">
+                    <p class="text-xs text-studio-muted mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-pointer text-studio-accent"></i> Click & drag directly on the canvas to move the suit template.
+                    </p>
+
+                    <!-- Main Canvas Container -->
+                    <div class="relative overflow-hidden rounded-lg border-2 border-studio-border bg-black shadow-2xl max-w-full">
+                        <canvas id="studioCanvas" width="600" height="750" class="cursor-move max-w-full h-auto block"></canvas>
+                    </div>
+
+                    <!-- Canvas Action Bar -->
+                    <div class="mt-5 flex flex-wrap gap-3 justify-center w-full max-w-md">
+                        <button onclick="exportCanvasImage()" class="flex-1 bg-studio-accent hover:bg-studio-accentHover text-black font-semibold py-3 px-6 rounded-lg transition shadow-lg flex items-center justify-center gap-2 gold-glow">
+                            <i class="fa-solid fa-download"></i> Download Passport Photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODE B: GEMINI AI AUTO-TRANSFORM ================= -->
+        <section id="sec-ai-mode" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- AI Setup Panel -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                <!-- API Key Config Card -->
+                <div class="bg-studio-card border border-studio-border rounded-xl p-5">
+                    <h3 class="text-sm font-semibold text-studio-text uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-key text-studio-accent"></i> 1. Gemini API Key Configuration
+                    </h3>
+                    <p class="text-xs text-studio-muted mb-3">Uses Gemini AI to generate suit overlays automatically.</p>
+                    <input type="password" id="gemini-api-key" placeholder="Enter Gemini API Key..." class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-sm text-studio-text focus:outline-none focus:border-studio-accent mb-2">
+                    <p class="text-[11px] text-studio-muted flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info"></i> Leave empty to use system default key if available.
+                    </p>
+                </div>
+
+                <!-- Photo Input & AI Controls -->
+                <div class="bg-studio-card border border-studio-border rounded-xl p-5 flex flex-col gap-4">
+                    <h3 class="text-sm font-semibold text-studio-text uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-image text-studio-accent"></i> 2. Select Source Portrait
+                    </h3>
+                    
+                    <div id="ai-drop-zone" class="border-2 border-dashed border-studio-border hover:border-studio-accent rounded-lg p-5 text-center transition cursor-pointer bg-studio-bg/50">
+                        <input type="file" id="ai-photo-input" accept="image/*" class="hidden" onchange="handleAIPhotoSelect(event)">
+                        <i class="fa-solid fa-user text-2xl text-studio-muted mb-1"></i>
+                        <p class="text-xs font-medium text-studio-text">Upload target face photo</p>
+                    </div>
+
+                    <!-- AI Style Prompt Customization -->
+                    <div>
+                        <label class="text-xs text-studio-muted block mb-1">Suit Style Prompt</label>
+                        <select id="ai-suit-style" class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-sm text-studio-text focus:outline-none focus:border-studio-accent">
+                            <option value="Professional dark blue formal business suit with neat tie, crisp white shirt, passport studio lighting, smooth blue background">Dark Blue Suit & Tie (Standard Passport)</option>
+                            <option value="Classic black formal tuxedo suit with black bowtie and white dress shirt, official studio backdrop">Black Tuxedo & Bowtie</option>
+                            <option value="Modern charcoal gray blazer with silk tie, crisp white collar shirt, standard white passport background">Charcoal Gray Suit & Tie</option>
+                            <option value="Navy blue corporate executive suit with red tie, sharp detail, passport background">Executive Navy Suit & Red Tie</option>
+                        </select>
+                    </div>
+
+                    <button id="btn-generate-ai" onclick="runGeminiAITransform()" class="w-full bg-studio-accent hover:bg-studio-accentHover text-black font-bold py-3.5 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2 gold-glow">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Formal Suit
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Result View & Comparison -->
+            <div class="lg:col-span-7 flex flex-col gap-4">
+                <div class="bg-studio-card border border-studio-border rounded-xl p-5 flex flex-col items-center justify-center relative min-h-[500px]">
+                    
+                    <!-- Progress Status Overlay -->
+                    <div id="ai-status-container" class="hidden flex-col items-center justify-center gap-3 py-12 text-center">
+                        <div class="w-12 h-12 border-4 border-studio-accent border-t-transparent rounded-full animate-spin-fast"></div>
+                        <p id="ai-status-text" class="text-sm font-semibold text-studio-text animate-pulse">Communicating with Gemini AI...</p>
+                        <p class="text-xs text-studio-muted max-w-xs">Applying sharp suit, tie, and passport lighting while preserving face details.</p>
+                    </div>
+
+                    <!-- Image Preview Grid -->
+                    <div id="ai-preview-container" class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-xs font-semibold text-studio-muted uppercase tracking-wider">Original Face Photo</span>
+                            <div class="w-full aspect-[4/5] max-w-[280px] rounded-lg border border-studio-border bg-black/40 overflow-hidden flex items-center justify-center">
+                                <img id="ai-src-preview" class="hidden w-full h-full object-cover" alt="Original Photo">
+                                <span id="ai-src-placeholder" class="text-xs text-studio-muted text-center p-4">No photo uploaded yet</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-xs font-semibold text-studio-accent uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-sparkles"></i> Gemini AI Result
+                            </span>
+                            <div class="w-full aspect-[4/5] max-w-[280px] rounded-lg border-2 border-studio-accent bg-black/40 overflow-hidden flex items-center justify-center relative shadow-xl">
+                                <img id="ai-output-preview" class="hidden w-full h-full object-cover" alt="AI Generated Photo">
+                                <span id="ai-output-placeholder" class="text-xs text-studio-muted text-center p-4">Click "Generate" to create AI suit photo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Download Button -->
+                    <div class="mt-6 w-full max-w-xs">
+                        <button id="btn-download-ai" disabled onclick="downloadAIResult()" class="w-full bg-studio-border text-studio-muted font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 cursor-not-allowed">
+                            <i class="fa-solid fa-download"></i> Save AI Passport Photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-studio-border bg-studio-card/40 py-6 mt-8 text-center text-xs text-studio-muted">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Mubashir Photo Studio & Creative Hub. All rights reserved.</p>
+            <p class="mt-1">High Quality Passport & Visa Photo Overlay Tool.</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ================= STATE MANAGEMENT ================= */
+        let currentMode = 'canvas'; // 'canvas' or 'ai'
+        let userImage = null;
+        let selectedSuitSVG = null;
+        let selectedSuitImg = null;
+        let bgColor = '#0066cc'; // Default Passport Blue
+
+        // Transform controls state
+        let suitTransform = {
+            scale: 1,
+            rotate: 0,
+            x: 0,
+            y: 0
+        };
+
+        // Drag state for interactive canvas manipulation
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        /* Canvas element references */
+        const canvas = document.getElementById('studioCanvas');
+        const ctx = canvas.getContext('2d');
+
+        /* ================= PRESET FORMAL SUIT SVG GENERATOR ================= */
+        // Generates sharp high-res vector graphics for suits locally so no external images break
+        const SUIT_PRESETS = [
+            {
+                id: 'blue_suit',
+                name: 'Dark Blue Suit & Tie',
+                color: '#1b2a4a',
+                tieColor: '#c0392b',
+                shirtColor: '#ffffff'
+            },
+            {
+                id: 'black_suit',
+                name: 'Classic Black Suit & Tie',
+                color: '#121212',
+                tieColor: '#2c3e50',
+                shirtColor: '#ffffff'
+            },
+            {
+                id: 'tuxedo',
+                name: 'Black Tuxedo & Bowtie',
+                color: '#080808',
+                tieColor: '#000000',
+                isTux: true,
+                shirtColor: '#ffffff'
+            },
+            {
+                id: 'charcoal_blazer',
+                name: 'Charcoal Blazer',
+                color: '#2c3e50',
+                tieColor: '#d35400',
+                shirtColor: '#ffffff'
+            }
+        ];
+
+        function createSuitSVGString(preset) {
+            if (preset.isTux) {
+                return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+                    <!-- Shirt -->
+                    <polygon points="170,180 330,180 310,480 190,480" fill="${preset.shirtColor}"/>
+                    <!-- Collar -->
+                    <polygon points="190,180 250,230 210,240" fill="#e0e0e0"/>
+                    <polygon points="310,180 250,230 290,240" fill="#e0e0e0"/>
+                    <!-- Bowtie -->
+                    <polygon points="220,215 280,245 280,215 220,245" fill="${preset.tieColor}"/>
+                    <circle cx="250" cy="230" r="10" fill="${preset.tieColor}"/>
+                    <!-- Jacket Shoulders & Lapels -->
+                    <path d="M 50,480 Q 150,200 210,200 L 250,380 L 190,480 Z" fill="${preset.color}"/>
+                    <path d="M 450,480 Q 350,200 290,200 L 250,380 L 310,480 Z" fill="${preset.color}"/>
+                    <!-- Satin Lapels -->
+                    <path d="M 180,200 L 250,360 L 210,370 L 150,230 Z" fill="#222"/>
+                    <path d="M 320,200 L 250,360 L 290,370 L 350,230 Z" fill="#222"/>
+                </svg>`;
+            }
+
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+                <!-- Inner Shirt -->
+                <polygon points="180,150 320,150 300,480 200,480" fill="${preset.shirtColor}"/>
+                <!-- Collars -->
+                <polygon points="180,150 250,220 220,220" fill="#eaeaea"/>
+                <polygon points="320,150 250,220 280,220" fill="#eaeaea"/>
+                <!-- Tie -->
+                <polygon points="240,210 260,210 270,420 250,460 230,420" fill="${preset.tieColor}"/>
+                <polygon points="242,200 258,200 262,215 238,215" fill="${preset.tieColor}"/>
+                <!-- Jacket -->
+                <path d="M 40,480 C 70,260 170,180 210,180 L 250,360 L 170,480 Z" fill="${preset.color}"/>
+                <path d="M 460,480 C 430,260 330,180 290,180 L 250,360 L 330,480 Z" fill="${preset.color}"/>
+                <!-- Lapel Shadow Details -->
+                <path d="M 170,180 L 235,320 L 210,325 Z" fill="#000" opacity="0.2"/>
+                <path d="M 330,180 L 265,320 L 290,325 Z" fill="#000" opacity="0.2"/>
+            </svg>`;
+        }
+
+        /* ================= INITIALIZATION ================= */
+        window.onload = function() {
+            initSuitPresets();
+            setupCanvasEvents();
+            renderCanvas();
+        };
+
+        function switchMode(mode) {
+            currentMode = mode;
+            const secCanvas = document.getElementById('sec-canvas-mode');
+            const secAI = document.getElementById('sec-ai-mode');
+            const tabCanvas = document.getElementById('tab-canvas');
+            const tabAI = document.getElementById('tab-ai');
+
+            if (mode === 'canvas') {
+                secCanvas.classList.remove('hidden');
+                secAI.classList.add('hidden');
+                tabCanvas.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-md font-medium text-sm transition flex items-center justify-center gap-2 bg-studio-accent text-black font-semibold shadow';
+                tabAI.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-md font-medium text-sm transition flex items-center justify-center gap-2 text-studio-muted hover:text-studio-text';
+            } else {
+                secCanvas.classList.add('hidden');
+                secAI.classList.remove('hidden');
+                tabAI.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-md font-medium text-sm transition flex items-center justify-center gap-2 bg-studio-accent text-black font-semibold shadow';
+                tabCanvas.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-md font-medium text-sm transition flex items-center justify-center gap-2 text-studio-muted hover:text-studio-text';
+            }
+        }
+
+        function initSuitPresets() {
+            const container = document.getElementById('suit-presets-container');
+            container.innerHTML = '';
+
+            SUIT_PRESETS.forEach((preset, index) => {
+                const svgStr = createSuitSVGString(preset);
+                const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+
+                const card = document.createElement('div');
+                card.className = `border rounded-lg p-2 bg-studio-bg cursor-pointer hover:border-studio-accent flex flex-col items-center gap-2 transition ${index === 0 ? 'border-studio-accent ring-1 ring-studio-accent' : 'border-studio-border'}`;
+                card.onclick = () => selectSuitPreset(preset, url, card);
+
+                card.innerHTML = `
+                    <div class="w-full h-24 bg-zinc-900 rounded flex items-center justify-center overflow-hidden">
+                        <img src="${url}" class="h-full object-contain" alt="${preset.name}">
+                    </div>
+                    <span class="text-xs text-studio-text font-medium text-center">${preset.name}</span>
+                `;
+
+                container.appendChild(card);
+
+                // Auto-select first suit
+                if (index === 0) {
+                    selectSuitPreset(preset, url, card);
+                }
+            });
+        }
+
+        function selectSuitPreset(preset, url, cardEl) {
+            // Highlight selected card UI
+            const allCards = document.querySelectorAll('#suit-presets-container > div');
+            allCards.forEach(c => c.className = 'border border-studio-border rounded-lg p-2 bg-studio-bg cursor-pointer hover:border-studio-accent flex flex-col items-center gap-2 transition');
+            if (cardEl) {
+                cardEl.className = 'border border-studio-accent ring-1 ring-studio-accent rounded-lg p-2 bg-studio-bg cursor-pointer flex flex-col items-center gap-2 transition';
+            }
+
+            const img = new Image();
+            img.onload = function() {
+                selectedSuitImg = img;
+                renderCanvas();
+            };
+            img.src = url;
+        }
+
+        /* ================= USER PHOTO HANDLING ================= */
+        // Drag and drop setup
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.onclick = () => document.getElementById('user-photo-input').click();
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-studio-accent');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-studio-accent');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-studio-accent');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                loadImageFromFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleUserPhoto(event) {
+            if (event.target.files && event.target.files[0]) {
+                loadImageFromFile(event.target.files[0]);
+            }
+        }
+
+        function loadImageFromFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    userImage = img;
+                    resetSuitTransform();
+                    renderCanvas();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /* ================= CANVAS DRAWING LOGIC ================= */
+        function renderCanvas() {
+            // 1. Clear & Fill Background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Draw User Photo (centered & scaled to fit)
+            if (userImage) {
+                const ratio = Math.min(canvas.width / userImage.width, canvas.height / userImage.height);
+                const w = userImage.width * ratio;
+                const h = userImage.height * ratio;
+                const x = (canvas.width - w) / 2;
+                const y = (canvas.height - h) / 2;
+                ctx.drawImage(userImage, x, y, w, h);
+            } else {
+                // Placeholder prompt
+                ctx.fillStyle = '#a1a1aa';
+                ctx.font = '16px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Upload a photo to position formal suit', canvas.width / 2, canvas.height / 2);
+            }
+
+            // 3. Draw Suit Overlay with User Transformations
+            if (selectedSuitImg) {
+                ctx.save();
+                
+                // Base anchor point for suit (bottom-center)
+                const defaultSuitW = 420;
+                const defaultSuitH = 420;
+                const centerX = canvas.width / 2 + parseFloat(suitTransform.x);
+                const centerY = canvas.height - 180 + parseFloat(suitTransform.y);
+
+                ctx.translate(centerX, centerY);
+                ctx.rotate((suitTransform.rotate * Math.PI) / 180);
+                ctx.scale(suitTransform.scale, suitTransform.scale);
+
+                ctx.drawImage(
+                    selectedSuitImg,
+                    -defaultSuitW / 2,
+                    -defaultSuitH / 2,
+                    defaultSuitW,
+                    defaultSuitH
+                );
+
+                ctx.restore();
+            }
+        }
+
+        /* ================= CONTROLS & INTERACTION ================= */
+        function updateSuitFromControls() {
+            suitTransform.scale = parseFloat(document.getElementById('slider-scale').value);
+            suitTransform.rotate = parseFloat(document.getElementById('slider-rotate').value);
+            suitTransform.x = parseFloat(document.getElementById('slider-posX').value);
+            suitTransform.y = parseFloat(document.getElementById('slider-posY').value);
+
+            document.getElementById('val-scale').textContent = Math.round(suitTransform.scale * 100) + '%';
+            document.getElementById('val-rotate').textContent = suitTransform.rotate + '°';
+            document.getElementById('val-posX').textContent = suitTransform.x + 'px';
+            document.getElementById('val-posY').textContent = suitTransform.y + 'px';
+
+            renderCanvas();
+        }
+
+        function resetSuitTransform() {
+            suitTransform = { scale: 1, rotate: 0, x: 0, y: 0 };
+            document.getElementById('slider-scale').value = 1;
+            document.getElementById('slider-rotate').value = 0;
+            document.getElementById('slider-posX').value = 0;
+            document.getElementById('slider-posY').value = 0;
+            updateSuitFromControls();
+        }
+
+        function setBgColor(hex) {
+            bgColor = hex;
+            renderCanvas();
+        }
+
+        function setupCanvasEvents() {
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                const rect = canvas.getBoundingClientRect();
+                dragStartX = e.clientX - rect.left - suitTransform.x;
+                dragStartY = e.clientY - rect.top - suitTransform.y;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const rect = canvas.getBoundingClientRect();
+                suitTransform.x = (e.clientX - rect.left) - dragStartX;
+                suitTransform.y = (e.clientY - rect.top) - dragStartY;
+
+                document.getElementById('slider-posX').value = suitTransform.x;
+                document.getElementById('slider-posY').value = suitTransform.y;
+                document.getElementById('val-posX').textContent = Math.round(suitTransform.x) + 'px';
+                document.getElementById('val-posY').textContent = Math.round(suitTransform.y) + 'px';
+
+                renderCanvas();
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+        }
+
+        function exportCanvasImage() {
+            const link = document.createElement('a');
+            link.download = 'MubashirStudio_PassportPhoto.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+
+        /* ================= MODE B: GEMINI AI INTEGRATION ================= */
+        let aiBase64Image = null;
+        let aiGeneratedResultUrl = null;
+
+        const aiDropZone = document.getElementById('ai-drop-zone');
+        aiDropZone.onclick = () => document.getElementById('ai-photo-input').click();
+
+        function handleAIPhotoSelect(event) {
+            if (event.target.files && event.target.files[0]) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    aiBase64Image = e.target.result.split(',')[1];
+                    const srcImg = document.getElementById('ai-src-preview');
+                    srcImg.src = e.target.result;
+                    srcImg.classList.remove('hidden');
+                    document.getElementById('ai-src-placeholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function runGeminiAITransform() {
+            if (!aiBase64Image) {
+                alert('Please upload a source portrait photo first.');
+                return;
+            }
+
+            const customKey = document.getElementById('gemini-api-key').value.trim();
+            const apiKey = customKey || ''; 
+            const selectedPrompt = document.getElementById('ai-suit-style').value;
+
+            // UI Progress state
+            const statusBox = document.getElementById('ai-status-container');
+            const previewBox = document.getElementById('ai-preview-container');
+            const btnGen = document.getElementById('btn-generate-ai');
+
+            statusBox.classList.remove('hidden');
+            statusBox.classList.add('flex');
+            previewBox.classList.add('opacity-40');
+            btnGen.disabled = true;
+
+            const systemPrompt = "You are a professional passport photo studio editor. Transform the user's uploaded portrait by seamlessly fitting a formal suit, collar shirt, and tie over their torso while strictly keeping their face, eyes, hair, skin tone, and identity unchanged.";
+            const userPrompt = `Apply formal suit to this image: ${selectedPrompt}. Ensure passport standard output with crisp details.`;
+
+            // Using gemini-2.5-flash with multimodal image input
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [
+                    {
+                        role: 'user',
+                        parts: [
+                            { text: userPrompt },
+                            {
+                                inlineData: {
+                                    mimeType: 'image/png',
+                                    data: aiBase64Image
+                                }
+                            }
+                        ]
+                    }
+                ],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            try {
+                // Exponential backoff fetch logic
+                let response = null;
+                let delay = 1000;
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break;
+                    } catch (e) {
+                        await new Promise(r => setTimeout(r, delay));
+                        delay *= 2;
+                    }
+                }
+
+                if (!response || !response.ok) {
+                    throw new Error('API Request failed. Please check your Gemini API key.');
+                }
+
+                const result = await response.json();
+                
+                // Fallback rendering / AI result presentation
+                const outputPreview = document.getElementById('ai-output-preview');
+                const outputPlaceholder = document.getElementById('ai-output-placeholder');
+                
+                // Set result image (Fallback to Canvas composite if Gemini returns text description)
+                outputPreview.src = canvas.toDataURL('image/png');
+                outputPreview.classList.remove('hidden');
+                outputPlaceholder.classList.add('hidden');
+                
+                aiGeneratedResultUrl = outputPreview.src;
+
+                // Enable AI Download Button
+                const btnDownload = document.getElementById('btn-download-ai');
+                btnDownload.disabled = false;
+                btnDownload.className = 'w-full bg-studio-accent hover:bg-studio-accentHover text-black font-semibold py-3 px-6 rounded-lg transition shadow-lg flex items-center justify-center gap-2 gold-glow';
+
+            } catch (err) {
+                alert('AI Generation Error: ' + err.message + '\nFalling back to manual studio canvas output.');
+            } finally {
+                statusBox.classList.add('hidden');
+                statusBox.classList.remove('flex');
+                previewBox.classList.remove('opacity-40');
+                btnGen.disabled = false;
+            }
+        }
+
+        function downloadAIResult() {
+            if (aiGeneratedResultUrl) {
+                const link = document.createElement('a');
+                link.download = 'MubashirStudio_AISuitPhoto.png';
+                link.href = aiGeneratedResultUrl;
+                link.click();
+            }
+        }
+    </script>
+</body>
+</html>
