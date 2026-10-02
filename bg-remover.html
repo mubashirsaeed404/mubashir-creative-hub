@@ -16,43 +16,8 @@
         .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
         .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; }
         canvas { max-width: 100%; height: auto; }
-        #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
+        #status { color: var(--accent); font-weight: bold; margin-top: 15px; text-align: center; font-size: 1.1rem; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .key-input { margin-top: 5px; width: 100%; padding: 10px; background: #18181b; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; }
-        
-        /* New Copy Box Banner Style */
-        .key-banner {
-            background: #1e1b4b;
-            border: 1px solid #6366f1;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .key-code {
-            background: #0f172a;
-            color: #38bdf8;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        .copy-btn {
-            background: #6366f1;
-            color: #fff;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.85rem;
-        }
-        .copy-btn:hover { background: #4f46e5; }
     </style>
 </head>
 <body>
@@ -63,24 +28,10 @@
     <div class="container">
         <a href="index.html" class="back-link">← Back to Main Hub</a>
 
-        <!-- Top API Key Display Banner -->
-        <div class="key-banner">
-            <div>
-                <span style="font-size:0.9rem; color:#cbd5e1;">🔑 Free HD Remove.bg API Key:</span>
-                <span class="key-code" id="display-key">5NDMCJtvWgjj2jYKJ2d75eH</span>
-            </div>
-            <button class="copy-btn" onclick="copyKey()">Copy Key</button>
-        </div>
-
         <div class="upload-area" onclick="document.getElementById('file-in').click()">
             <h3>📁 Upload Image (JPG / PNG)</h3>
             <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
             <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
-        </div>
-
-        <div style="margin-top:15px;">
-            <label style="font-size:0.85rem; color:#a1a1aa;">Paste Remove.bg API Key Here:</label>
-            <input type="text" id="api-key" class="key-input" value="5NDMCJtvWgjj2jYKJ2d75eH" placeholder="Paste copied API Key here">
         </div>
 
         <div id="status"></div>
@@ -105,11 +56,13 @@
         let cutImg = new Image();
         let currentColor = '#0055ff';
 
-        function copyKey() {
-            let keyText = document.getElementById('display-key').innerText;
-            navigator.clipboard.writeText(keyText);
-            alert("API Key copied to clipboard! Ab neechay input box mein paste kar dein.");
-        }
+        // List of all generated API Keys
+        const apiKeys = [
+            'V4ojVYDYwxk8STTzB4nWyUZb',
+            'HgdpG3fQ7EFaRhfrc5dRQez3',
+            'ix1k6fJniBzmhVFWXqkp5fdu',
+            '71g3WqBUrW5v4PebkZ4yLQfb'
+        ];
 
         async function processImage(e) {
             let file = e.target.files[0];
@@ -118,37 +71,41 @@
             let status = document.getElementById('status');
             status.innerText = "⏳ Processing image with HD Studio AI... Please wait.";
 
-            let customKey = document.getElementById('api-key').value.trim();
-            let apiKey = customKey || '5NDMCJtvWgjj2jYKJ2d75eH';
+            let success = false;
 
-            let formData = new FormData();
-            formData.append('image_file', file);
-            formData.append('size', 'auto');
+            // Loop through all API keys automatically
+            for (let i = 0; i < apiKeys.length; i++) {
+                let currentKey = apiKeys[i];
+                let formData = new FormData();
+                formData.append('image_file', file);
+                formData.append('size', 'auto');
 
-            try {
-                let response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                    method: 'POST',
-                    headers: {
-                        'X-Api-Key': apiKey
-                    },
-                    body: formData
-                });
+                try {
+                    let response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                        method: 'POST',
+                        headers: {
+                            'X-Api-Key': currentKey
+                        },
+                        body: formData
+                    });
 
-                if (!response.ok) {
-                    let errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.errors?.[0]?.title || "API Error or Credit Limit Reached");
+                    if (response.ok) {
+                        let blob = await response.blob();
+                        cutImg.onload = function() {
+                            renderCanvas();
+                            status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
+                        };
+                        cutImg.src = URL.createObjectURL(blob);
+                        success = true;
+                        break; // Stop loop once successful
+                    }
+                } catch (err) {
+                    console.log("Key failed, trying next...", err);
                 }
+            }
 
-                let blob = await response.blob();
-                cutImg.onload = function() {
-                    renderCanvas();
-                    status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
-                };
-                cutImg.src = URL.createObjectURL(blob);
-
-            } catch(err) {
-                status.innerText = "⚠️ Error: " + err.message + ". Enter your own free Remove.bg API key.";
-                console.error(err);
+            if (!success) {
+                status.innerText = "⚠️ Error: Daily credit limit reached across all keys. Please try again tomorrow or add a new key.";
             }
         }
 
