@@ -1,143 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Passport Studio Editor</title>
-    <style>
-        :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
-        body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
-        header { background: #000; padding: 1.2rem; text-align: center; border-bottom: 2px solid var(--accent); }
-        header h1 { margin: 0; color: var(--accent); font-size: 1.5rem; }
-        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-        .back-link { display: inline-block; color: var(--accent); text-decoration: none; font-weight: bold; margin-bottom: 1rem; }
-        .upload-area { border: 2px dashed var(--accent); background: #1a1a1e; border-radius: 12px; padding: 2.5rem; text-align: center; cursor: pointer; }
-        .color-presets { display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
-        .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
-        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; padding: 10px; }
-        canvas { max-width: 100%; height: auto; }
-        #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
-        .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-    </style>
-</head>
-<body>
+async function processImage(e) {
+    let file = e.target.files[0];
+    if(!file) return;
 
-<header>
-    <h1>AI Passport Studio Editor</h1>
-</header>
+    let status = document.getElementById('status');
+    status.innerText = "⏳ Processing HD Cutout... Please wait.";
 
-<div class="container">
-    <a href="index.html" class="back-link">← Back to Main Hub</a>
+    let formData = new FormData();
+    formData.append('image_file', file);
 
-    <div class="upload-area" onclick="document.getElementById('file-in').click()">
-        <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
-        <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
-    </div>
+    try {
+        let response = await fetch('https://clipdrop-api.co/remove-background/v1', {
+            method: 'POST',
+            headers: {
+                'x-api-key': 'YOUR_CLIPDROP_API_KEY'
+            },
+            body: formData
+        });
 
-    <div id="status"></div>
-
-    <div class="color-presets">
-        <label style="font-weight:bold;">Select Background Color:</label>
-        <div class="color-btn" style="background:#0055ff;" onclick="changeBg('#0055ff')"></div>
-        <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
-        <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
-        <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
-        <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)">
-    </div>
-
-    <div class="preview-box">
-        <canvas id="out-canvas"></canvas>
-    </div>
-
-    <button class="dl-btn" onclick="downloadPhoto()">Download Passport Photo</button>
-</div>
-
-<script>
-    // Remove.bg API Keys Array
-    const SYSTEM_API_KEYS = [
-        "YOUR_NEW_REMOVEBG_KEY_HERE"
-    ];
-
-    let cutImg = new Image();
-    let currentColor = '#0055ff';
-
-    async function processImage(e) {
-        let file = e.target.files[0];
-        if(!file) return;
-
-        let status = document.getElementById('status');
-        status.innerText = "⏳ Processing HD Studio Cutout... Please wait.";
-
-        let success = false;
-
-        for (let apiKey of SYSTEM_API_KEYS) {
-            if(apiKey.includes("YOUR_NEW_")) continue;
-
-            try {
-                let formData = new FormData();
-                formData.append('image_file', file);
-                formData.append('size', 'auto');
-
-                let response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                    method: 'POST',
-                    headers: { 'X-Api-Key': apiKey },
-                    body: formData
-                });
-
-                if (response.ok) {
-                    let blob = await response.blob();
-                    loadCutout(blob);
-                    success = true;
-                    break;
-                }
-            } catch(err) {
-                console.log("Key failed or quota over, trying next key...", err);
-            }
+        if(response.ok) {
+            let blob = await response.blob();
+            loadCutout(blob);
+        } else {
+            status.innerText = "⚠️ API Error. Please check API Key or quota.";
         }
-
-        if(!success) {
-            status.innerText = "⚠️ API key credits expired! Nayi Remove.bg API key daalein.";
-        }
+    } catch(err) {
+        status.innerText = "⚠️ Connection error.";
     }
-
-    function loadCutout(blob) {
-        let status = document.getElementById('status');
-        cutImg.onload = function() {
-            renderCanvas();
-            status.innerText = "✅ Background Removed Perfectly!";
-        };
-        cutImg.src = URL.createObjectURL(blob);
-    }
-
-    function changeBg(color) {
-        currentColor = color;
-        renderCanvas();
-    }
-
-    function renderCanvas() {
-        if(!cutImg.src) return;
-        let canvas = document.getElementById('out-canvas');
-        let ctx = canvas.getContext('2d');
-        
-        canvas.width = cutImg.width;
-        canvas.height = cutImg.height;
-
-        ctx.fillStyle = currentColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(cutImg, 0, 0);
-    }
-
-    function downloadPhoto() {
-        let canvas = document.getElementById('out-canvas');
-        if(canvas.width === 0) return alert("Please upload an image first.");
-        let a = document.createElement('a');
-        a.download = 'passport_studio_photo.png';
-        a.href = canvas.toDataURL('image/png');
-        a.click();
-    }
-</script>
-
-</body>
-</html>
+}
