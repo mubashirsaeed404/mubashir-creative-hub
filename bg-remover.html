@@ -18,121 +18,167 @@
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .key-input { margin-top: 10px; width: 100%; padding: 8px; background: #18181b; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; }
+        .key-input { margin-top: 5px; width: 100%; padding: 10px; background: #18181b; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; }
+        
+        /* New Copy Box Banner Style */
+        .key-banner {
+            background: #1e1b4b;
+            border: 1px solid #6366f1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .key-code {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .copy-btn {
+            background: #6366f1;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .copy-btn:hover { background: #4f46e5; }
     </style>
 </head>
 <body>
+    <header>
+        <h1>AI Passport Studio Editor</h1>
+    </header>
 
-<header>
-    <h1>AI Passport Studio Editor</h1>
-</header>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Main Hub</a>
 
-<div class="container">
-    <a href="index.html" class="back-link">← Back to Main Hub</a>
+        <!-- Top API Key Display Banner -->
+        <div class="key-banner">
+            <div>
+                <span style="font-size:0.9rem; color:#cbd5e1;">🔑 Free HD Remove.bg API Key:</span>
+                <span class="key-code" id="display-key">5NDMCJtvWgjj2jYKJ2d75eH</span>
+            </div>
+            <button class="copy-btn" onclick="copyKey()">Copy Key</button>
+        </div>
 
-    <div class="upload-area" onclick="document.getElementById('file-in').click()">
-        <h3>📁 Upload Image (JPG / PNG)</h3>
-        <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
-        <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
+        <div class="upload-area" onclick="document.getElementById('file-in').click()">
+            <h3>📁 Upload Image (JPG / PNG)</h3>
+            <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
+            <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
+        </div>
+
+        <div style="margin-top:15px;">
+            <label style="font-size:0.85rem; color:#a1a1aa;">Paste Remove.bg API Key Here:</label>
+            <input type="text" id="api-key" class="key-input" value="5NDMCJtvWgjj2jYKJ2d75eH" placeholder="Paste copied API Key here">
+        </div>
+
+        <div id="status"></div>
+
+        <div class="color-presets">
+            <label style="font-weight:bold;">Select Background Color:</label>
+            <div class="color-btn" style="background:#0055ff;" onclick="changeBg('#0055ff')"></div>
+            <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
+            <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
+            <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
+            <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)" style="width:36px; height:36px; border:none; cursor:pointer;">
+        </div>
+
+        <div class="preview-box">
+            <canvas id="out-canvas"></canvas>
+        </div>
+
+        <button class="dl-btn" onclick="downloadPhoto()">Download Passport Photo</button>
     </div>
 
-    <div style="margin-top:15px;">
-        <label style="font-size:0.85rem; color:#a1a1aa;">Remove.bg API Key (Optional for Unlimited HD):</label>
-        <input type="text" id="api-key" class="key-input" placeholder="Enter your free Remove.bg API Key or leave default">
-    </div>
+    <script>
+        let cutImg = new Image();
+        let currentColor = '#0055ff';
 
-    <div id="status"></div>
-
-    <div class="color-presets">
-        <label style="font-weight:bold;">Select Background Color:</label>
-        <div class="color-btn" style="background:#0055ff;" onclick="changeBg('#0055ff')"></div>
-        <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
-        <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
-        <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
-        <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)">
-    </div>
-
-    <div class="preview-box">
-        <canvas id="out-canvas"></canvas>
-    </div>
-
-    <button class="dl-btn" onclick="downloadPhoto()">Download Passport Photo</button>
-</div>
-
-<script>
-    let cutImg = new Image();
-    let currentColor = '#0055ff';
-
-    async function processImage(e) {
-        let file = e.target.files[0];
-        if(!file) return;
-
-        let status = document.getElementById('status');
-        status.innerText = "⏳ Processing image with HD Studio AI... Please wait.";
-
-        let customKey = document.getElementById('api-key').value.trim();
-        let apiKey = customKey || '5NDMCJtvWgjj2jYKJ2d75eH'; // Backup Key
-
-        let formData = new FormData();
-        formData.append('image_file', file);
-        formData.append('size', 'auto');
-
-        try {
-            // Direct Remove.bg API call with no proxy header loss
-            let response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                method: 'POST',
-                headers: {
-                    'X-Api-Key': apiKey
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                let errData = await response.json().catch(() => ({}));
-                throw new Error(errData.errors?.[0]?.title || "API Limit reached / Invalid Key");
-            }
-
-            let blob = await response.blob();
-            cutImg.onload = function() {
-                renderCanvas();
-                status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
-            };
-            cutImg.src = URL.createObjectURL(blob);
-
-        } catch(err) {
-            status.innerText = "⚠️ Error: " + err.message + ". Apni Remove.bg ki free API Key daal kar try karein.";
-            console.error(err);
+        function copyKey() {
+            let keyText = document.getElementById('display-key').innerText;
+            navigator.clipboard.writeText(keyText);
+            alert("API Key copied to clipboard! Ab neechay input box mein paste kar dein.");
         }
-    }
 
-    function changeBg(color) {
-        currentColor = color;
-        renderCanvas();
-    }
+        async function processImage(e) {
+            let file = e.target.files[0];
+            if(!file) return;
 
-    function renderCanvas() {
-        if(!cutImg.src) return;
-        let canvas = document.getElementById('out-canvas');
-        let ctx = canvas.getContext('2d');
-        
-        canvas.width = cutImg.width;
-        canvas.height = cutImg.height;
+            let status = document.getElementById('status');
+            status.innerText = "⏳ Processing image with HD Studio AI... Please wait.";
 
-        ctx.fillStyle = currentColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+            let customKey = document.getElementById('api-key').value.trim();
+            let apiKey = customKey || '5NDMCJtvWgjj2jYKJ2d75eH';
 
-        ctx.drawImage(cutImg, 0, 0);
-    }
+            let formData = new FormData();
+            formData.append('image_file', file);
+            formData.append('size', 'auto');
 
-    function downloadPhoto() {
-        let canvas = document.getElementById('out-canvas');
-        if(canvas.width === 0) return alert("Please upload an image first.");
-        let a = document.createElement('a');
-        a.download = 'studio_passport_photo.png';
-        a.href = canvas.toDataURL('image/png');
-        a.click();
-    }
-</script>
+            try {
+                let response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': apiKey
+                    },
+                    body: formData
+                });
 
+                if (!response.ok) {
+                    let errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.errors?.[0]?.title || "API Error or Credit Limit Reached");
+                }
+
+                let blob = await response.blob();
+                cutImg.onload = function() {
+                    renderCanvas();
+                    status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
+                };
+                cutImg.src = URL.createObjectURL(blob);
+
+            } catch(err) {
+                status.innerText = "⚠️ Error: " + err.message + ". Enter your own free Remove.bg API key.";
+                console.error(err);
+            }
+        }
+
+        function changeBg(color) {
+            currentColor = color;
+            renderCanvas();
+        }
+
+        function renderCanvas() {
+            if(!cutImg.src) return;
+            let canvas = document.getElementById('out-canvas');
+            let ctx = canvas.getContext('2d');
+            
+            canvas.width = cutImg.width;
+            canvas.height = cutImg.height;
+
+            ctx.fillStyle = currentColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.drawImage(cutImg, 0, 0);
+        }
+
+        function downloadPhoto() {
+            let canvas = document.getElementById('out-canvas');
+            if(canvas.width === 0) return alert("Please upload an image first.");
+            let a = document.createElement('a');
+            a.download = 'studio_passport_photo.png';
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        }
+    </script>
 </body>
 </html>
