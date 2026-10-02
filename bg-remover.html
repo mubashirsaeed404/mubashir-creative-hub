@@ -3,26 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Passport Studio Editor</title>
+    <title>AI Passport Studio & Studio Cropper</title>
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
         header { background: #000; padding: 1.2rem; text-align: center; border-bottom: 2px solid var(--accent); }
         header h1 { margin: 0; color: var(--accent); font-size: 1.5rem; }
-        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .container { max-width: 850px; margin: 2rem auto; padding: 0 1rem; }
         .back-link { display: inline-block; color: var(--accent); text-decoration: none; font-weight: bold; margin-bottom: 1rem; }
         .upload-area { border: 2px dashed var(--accent); background: #1a1a1e; border-radius: 12px; padding: 2.5rem; text-align: center; cursor: pointer; }
-        .color-presets { display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
-        .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
-        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; }
-        canvas { max-width: 100%; height: auto; }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 1.5rem 0;
+            background: var(--card);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        .control-group label { font-size: 0.85rem; color: #a1a1aa; font-weight: bold; }
+        .control-group select, .control-group input {
+            background: #000; color: #fff; border: 1px solid var(--border); padding: 8px; border-radius: 6px; outline: none;
+        }
+
+        .color-presets { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
+        
+        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 350px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; padding: 10px; }
+        canvas { max-width: 100%; height: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         #status { color: var(--accent); font-weight: bold; margin-top: 15px; text-align: center; font-size: 1.1rem; }
-        .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
+        .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
     </style>
 </head>
 <body>
     <header>
-        <h1>AI Passport Studio Editor</h1>
+        <h1>AI Passport Studio & Multi-Size Cropper</h1>
     </header>
 
     <div class="container">
@@ -30,38 +48,69 @@
 
         <div class="upload-area" onclick="document.getElementById('file-in').click()">
             <h3>📁 Upload Image (JPG / PNG)</h3>
-            <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
+            <p style="color:#a1a1aa; margin:0;">Click to select photo for Auto Cutout & Smart Crop</p>
             <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
         </div>
 
         <div id="status"></div>
 
-        <div class="color-presets">
-            <label style="font-weight:bold;">Select Background Color:</label>
-            <div class="color-btn" style="background:#0055ff;" onclick="changeBg('#0055ff')"></div>
-            <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
-            <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
-            <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
-            <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)" style="width:36px; height:36px; border:none; cursor:pointer;">
+        <!-- Smart Controls Grid -->
+        <div class="controls-grid">
+            <div class="control-group">
+                <label>1. Select Size / Dimension Preset:</label>
+                <select id="preset-select" onchange="applyCropAndShape()">
+                    <option value="passport">3.5 x 4.5 cm (Standard Passport Size)</option>
+                    <option value="idcard">8.6 x 5.4 cm (PVC ID Card Size)</option>
+                    <option value="a4">A4 Sheet Layout (21.0 x 29.7 cm)</option>
+                    <option value="square">Square Size (1:1 Ratio)</option>
+                    <option value="rect">Rectangle Banner (4:3 Ratio)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>2. Select Crop Shape:</label>
+                <select id="shape-select" onchange="applyCropAndShape()">
+                    <option value="rectangle">Standard Rectangle</option>
+                    <option value="circle">Passport Circle</option>
+                    <option value="oval">Studio Oval</option>
+                    <option value="rounded">Rounded Edge Corner</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>3. Select Background Color:</label>
+                <div class="color-presets">
+                    <div class="color-btn" style="background:#0055ff;" onclick="changeBg('#0055ff')"></div>
+                    <div class="color-btn" style="background:#ffffff;" onclick="changeBg('#ffffff')"></div>
+                    <div class="color-btn" style="background:#cc0000;" onclick="changeBg('#cc0000')"></div>
+                    <div class="color-btn" style="background:#888888;" onclick="changeBg('#888888')"></div>
+                    <input type="color" id="custom-color" value="#0055ff" onchange="changeBg(this.value)" style="width:32px; height:32px; border:none; cursor:pointer;">
+                </div>
+            </div>
         </div>
 
         <div class="preview-box">
             <canvas id="out-canvas"></canvas>
         </div>
 
-        <button class="dl-btn" onclick="downloadPhoto()">Download Passport Photo</button>
+        <button class="dl-btn" onclick="downloadPhoto()">Download Cropped Photo / Sheet</button>
     </div>
 
     <script>
         let cutImg = new Image();
         let currentColor = '#0055ff';
 
-        // List of all generated API Keys
+        // All 9 Auto-Rotating API Keys
         const apiKeys = [
             'V4ojVYDYwxk8STTzB4nWyUZb',
             'HgdpG3fQ7EFaRhfrc5dRQez3',
             'ix1k6fJniBzmhVFWXqkp5fdu',
-            '71g3WqBUrW5v4PebkZ4yLQfb'
+            '71g3WqBUrW5v4PebkZ4yLQfb',
+            'ufuZqSftkxDFrCwYKJ6uwriS',
+            'Qove8XozC32mUFR9bSuocoYo',
+            'fX9jA1xABRgWxvtmuM4PnPEq',
+            'dFEUgTUyi8Yb3CNEqhrm2EmN',
+            '5dfZ1zdVpr7TMooLePFPf3q1'
         ];
 
         async function processImage(e) {
@@ -73,7 +122,6 @@
 
             let success = false;
 
-            // Loop through all API keys automatically
             for (let i = 0; i < apiKeys.length; i++) {
                 let currentKey = apiKeys[i];
                 let formData = new FormData();
@@ -83,21 +131,19 @@
                 try {
                     let response = await fetch('https://api.remove.bg/v1.0/removebg', {
                         method: 'POST',
-                        headers: {
-                            'X-Api-Key': currentKey
-                        },
+                        headers: { 'X-Api-Key': currentKey },
                         body: formData
                     });
 
                     if (response.ok) {
                         let blob = await response.blob();
                         cutImg.onload = function() {
-                            renderCanvas();
-                            status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
+                            applyCropAndShape();
+                            status.innerText = "✅ Background Removed & Auto Cropped Perfectly!";
                         };
                         cutImg.src = URL.createObjectURL(blob);
                         success = true;
-                        break; // Stop loop once successful
+                        break;
                     }
                 } catch (err) {
                     console.log("Key failed, trying next...", err);
@@ -105,34 +151,113 @@
             }
 
             if (!success) {
-                status.innerText = "⚠️ Error: Daily credit limit reached across all keys. Please try again tomorrow or add a new key.";
+                status.innerText = "⚠️ Error: All API keys limit reached. Please add a new key.";
             }
         }
 
         function changeBg(color) {
             currentColor = color;
-            renderCanvas();
+            applyCropAndShape();
         }
 
-        function renderCanvas() {
+        function applyCropAndShape() {
             if(!cutImg.src) return;
+
             let canvas = document.getElementById('out-canvas');
             let ctx = canvas.getContext('2d');
-            
-            canvas.width = cutImg.width;
-            canvas.height = cutImg.height;
 
+            let preset = document.getElementById('preset-select').value;
+            let shape = document.getElementById('shape-select').value;
+
+            // Target Dimensions in Pixels (300 DPI high resolution)
+            let targetW = 413, targetH = 531; // Default 3.5 x 4.5 cm
+
+            if (preset === 'passport') { targetW = 413; targetH = 531; }
+            else if (preset === 'idcard') { targetW = 1016; targetH = 638; } // 8.6 x 5.4 cm
+            else if (preset === 'a4') { targetW = 2480; targetH = 3508; } // A4 Paper
+            else if (preset === 'square') { targetW = 600; targetH = 600; }
+            else if (preset === 'rect') { targetW = 800; targetH = 600; }
+
+            canvas.width = targetW;
+            canvas.height = targetH;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Shape Clipping Logic
+            ctx.save();
+            ctx.beginPath();
+
+            if (shape === 'circle') {
+                let radius = Math.min(targetW, targetH) / 2;
+                ctx.arc(targetW / 2, targetH / 2, radius, 0, Math.PI * 2);
+            } else if (shape === 'oval') {
+                ctx.ellipse(targetW / 2, targetH / 2, targetW / 2, targetH / 2, 0, 0, Math.PI * 2);
+            } else if (shape === 'rounded') {
+                let r = 30;
+                ctx.moveTo(r, 0);
+                ctx.lineTo(targetW - r, 0);
+                ctx.quadraticCurveTo(targetW, 0, targetW, r);
+                ctx.lineTo(targetW, targetH - r);
+                ctx.quadraticCurveTo(targetW, targetH, targetW - r, targetH);
+                ctx.lineTo(r, targetH);
+                ctx.quadraticCurveTo(0, targetH, 0, targetH - r);
+                ctx.lineTo(0, r);
+                ctx.quadraticCurveTo(0, 0, r, 0);
+            } else {
+                ctx.rect(0, 0, targetW, targetH);
+            }
+
+            ctx.closePath();
+            ctx.clip();
+
+            // Background Fill
             ctx.fillStyle = currentColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, targetW, targetH);
 
-            ctx.drawImage(cutImg, 0, 0);
+            // Smart Aspect Fit Scaling & Crop Draw
+            if (preset === 'a4') {
+                // If A4, create multi-photo passport grid
+                let passW = 413, passH = 531;
+                let cols = 5, rows = 6;
+                let startX = 120, startY = 150, gap = 40;
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        let x = startX + c * (passW + gap);
+                        let y = startY + r * (passH + gap);
+                        
+                        ctx.save();
+                        ctx.fillStyle = currentColor;
+                        ctx.fillRect(x, y, passW, passH);
+                        
+                        let scale = Math.min(passW / cutImg.width, passH / cutImg.height);
+                        let nw = cutImg.width * scale;
+                        let nh = cutImg.height * scale;
+                        ctx.drawImage(cutImg, x + (passW - nw)/2, y + (passH - nh)/2, nw, nh);
+                        
+                        ctx.strokeStyle = '#ccc';
+                        ctx.strokeRect(x, y, passW, passH);
+                        ctx.restore();
+                    }
+                }
+            } else {
+                let scale = Math.max(targetW / cutImg.width, targetH / cutImg.height);
+                let nw = cutImg.width * scale;
+                let nh = cutImg.height * scale;
+                let offsetX = (targetW - nw) / 2;
+                let offsetY = (targetH - nh) / 2;
+
+                ctx.drawImage(cutImg, offsetX, offsetY, nw, nh);
+            }
+
+            ctx.restore();
         }
 
         function downloadPhoto() {
             let canvas = document.getElementById('out-canvas');
             if(canvas.width === 0) return alert("Please upload an image first.");
             let a = document.createElement('a');
-            a.download = 'studio_passport_photo.png';
+            a.download = 'cropped_passport_studio.png';
             a.href = canvas.toDataURL('image/png');
             a.click();
         }
