@@ -29,6 +29,9 @@
             background: #000; color: #fff; border: 1px solid var(--border); padding: 8px; border-radius: 6px; outline: none;
         }
 
+        .custom-dim-box { display: none; gap: 8px; align-items: center; margin-top: 5px; }
+        .custom-dim-box input { width: 70px; text-align: center; }
+
         .color-presets { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
         
@@ -58,13 +61,21 @@
         <div class="controls-grid">
             <div class="control-group">
                 <label>1. Select Size / Dimension Preset:</label>
-                <select id="preset-select" onchange="applyCropAndShape()">
+                <select id="preset-select" onchange="toggleCustomInput(); applyCropAndShape();">
                     <option value="passport">3.5 x 4.5 cm (Standard Passport Size)</option>
                     <option value="idcard">8.6 x 5.4 cm (PVC ID Card Size)</option>
                     <option value="a4">A4 Sheet Layout (21.0 x 29.7 cm)</option>
                     <option value="square">Square Size (1:1 Ratio)</option>
                     <option value="rect">Rectangle Banner (4:3 Ratio)</option>
+                    <option value="custom">✏️ Custom Size (cm)</option>
                 </select>
+
+                <div class="custom-dim-box" id="custom-dim-box">
+                    <input type="number" id="custom-w" value="5.0" step="0.1" placeholder="W (cm)" oninput="applyCropAndShape()">
+                    <span>x</span>
+                    <input type="number" id="custom-h" value="5.0" step="0.1" placeholder="H (cm)" oninput="applyCropAndShape()">
+                    <span>cm</span>
+                </div>
             </div>
 
             <div class="control-group">
@@ -100,7 +111,6 @@
         let cutImg = new Image();
         let currentColor = '#0055ff';
 
-        // All 9 Auto-Rotating API Keys
         const apiKeys = [
             'V4ojVYDYwxk8STTzB4nWyUZb',
             'HgdpG3fQ7EFaRhfrc5dRQez3',
@@ -112,6 +122,16 @@
             'dFEUgTUyi8Yb3CNEqhrm2EmN',
             '5dfZ1zdVpr7TMooLePFPf3q1'
         ];
+
+        function toggleCustomInput() {
+            let preset = document.getElementById('preset-select').value;
+            let customBox = document.getElementById('custom-dim-box');
+            if (preset === 'custom') {
+                customBox.style.display = 'flex';
+            } else {
+                customBox.style.display = 'none';
+            }
+        }
 
         async function processImage(e) {
             let file = e.target.files[0];
@@ -169,21 +189,26 @@
             let preset = document.getElementById('preset-select').value;
             let shape = document.getElementById('shape-select').value;
 
-            // Target Dimensions in Pixels (300 DPI high resolution)
-            let targetW = 413, targetH = 531; // Default 3.5 x 4.5 cm
+            let targetW = 413, targetH = 531;
 
             if (preset === 'passport') { targetW = 413; targetH = 531; }
-            else if (preset === 'idcard') { targetW = 1016; targetH = 638; } // 8.6 x 5.4 cm
-            else if (preset === 'a4') { targetW = 2480; targetH = 3508; } // A4 Paper
+            else if (preset === 'idcard') { targetW = 1016; targetH = 638; }
+            else if (preset === 'a4') { targetW = 2480; targetH = 3508; }
             else if (preset === 'square') { targetW = 600; targetH = 600; }
             else if (preset === 'rect') { targetW = 800; targetH = 600; }
+            else if (preset === 'custom') {
+                let cmW = parseFloat(document.getElementById('custom-w').value) || 3.5;
+                let cmH = parseFloat(document.getElementById('custom-h').value) || 4.5;
+                // Convert CM to Pixels (300 DPI: 1 cm ≈ 118.11 px)
+                targetW = Math.round(cmW * 118.11);
+                targetH = Math.round(cmH * 118.11);
+            }
 
             canvas.width = targetW;
             canvas.height = targetH;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Shape Clipping Logic
             ctx.save();
             ctx.beginPath();
 
@@ -193,7 +218,7 @@
             } else if (shape === 'oval') {
                 ctx.ellipse(targetW / 2, targetH / 2, targetW / 2, targetH / 2, 0, 0, Math.PI * 2);
             } else if (shape === 'rounded') {
-                let r = 30;
+                let r = Math.min(targetW, targetH) * 0.08;
                 ctx.moveTo(r, 0);
                 ctx.lineTo(targetW - r, 0);
                 ctx.quadraticCurveTo(targetW, 0, targetW, r);
@@ -210,13 +235,10 @@
             ctx.closePath();
             ctx.clip();
 
-            // Background Fill
             ctx.fillStyle = currentColor;
             ctx.fillRect(0, 0, targetW, targetH);
 
-            // Smart Aspect Fit Scaling & Crop Draw
             if (preset === 'a4') {
-                // If A4, create multi-photo passport grid
                 let passW = 413, passH = 531;
                 let cols = 5, rows = 6;
                 let startX = 120, startY = 150, gap = 40;
