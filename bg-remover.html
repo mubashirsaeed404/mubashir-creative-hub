@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Akhter Photo Studio - Online AI Passport Photo Editor & Background Remover</title>
+    <title>Mubashir Photo Studio - Online AI Passport Photo Editor & Background Remover</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Free Online AI Passport Photo Studio, HD Background Remover with 0 Halo Lines, Custom Crop Sizes 3.5x4.5cm, PVC ID Card & A4 Print Sheet layout by Akhter Photo Studio.">
-    <meta name="keywords" content="passport photo editor, background remover online, 3.5x4.5 cm photo crop, PVC ID card size photo, A4 passport photo sheet, Akhter Photo Studio">
-    <meta name="author" content="Mubashir Saeed - Akhter Photo Studio">
+    <meta name="description" content="Free Online AI Passport Photo Studio, HD Background Remover with 0 Halo Lines, Custom Crop Sizes 3.5x4.5cm, PVC ID Card & A4 Print Sheet layout by Mubashir Photo Studio.">
+    <meta name="keywords" content="passport photo editor, background remover online, 3.5x4.5 cm photo crop, PVC ID card size photo, A4 passport photo sheet, Mubashir Photo Studio">
+    <meta name="author" content="Mubashir Saeed - Mubashir Photo Studio">
+
     <style>
         :root { --bg: #0f0f11; --card: #18181b; --accent: #eab308; --text: #f4f4f5; --border: #27272a; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -48,7 +49,7 @@
 </head>
 <body>
     <header>
-        <h1>AI Passport Studio & Multi-Size Cropper</h1>
+        <h1>Mubashir Photo Studio - AI Editor & Multi-Size Cropper</h1>
     </header>
 
     <div class="container">
@@ -76,9 +77,9 @@
                 </select>
 
                 <div class="custom-dim-box" id="custom-dim-box">
-                    <input type="number" id="custom-w" value="5.0" step="0.1" placeholder="W (cm)" oninput="applyCropAndShape()">
+                    <input type="number" id="custom-w" value="3.5" step="0.1" placeholder="W (cm)" oninput="applyCropAndShape()">
                     <span>x</span>
-                    <input type="number" id="custom-h" value="5.0" step="0.1" placeholder="H (cm)" oninput="applyCropAndShape()">
+                    <input type="number" id="custom-h" value="4.5" step="0.1" placeholder="H (cm)" oninput="applyCropAndShape()">
                     <span>cm</span>
                 </div>
             </div>
@@ -116,6 +117,7 @@
         let cutImg = new Image();
         let currentColor = '#0055ff';
 
+        // 9 Multi-Key Rotation API Keys
         const apiKeys = [
             'V4ojVYDYwxk8STTzB4nWyUZb',
             'HgdpG3fQ7EFaRhfrc5dRQez3',
@@ -204,7 +206,6 @@
             else if (preset === 'custom') {
                 let cmW = parseFloat(document.getElementById('custom-w').value) || 3.5;
                 let cmH = parseFloat(document.getElementById('custom-h').value) || 4.5;
-                // Convert CM to Pixels (300 DPI: 1 cm ≈ 118.11 px)
                 targetW = Math.round(cmW * 118.11);
                 targetH = Math.round(cmH * 118.11);
             }
@@ -284,7 +285,7 @@
             let canvas = document.getElementById('out-canvas');
             if(canvas.width === 0) return alert("Please upload an image first.");
             let a = document.createElement('a');
-            a.download = 'cropped_passport_studio.png';
+            a.download = 'mubashir_photo_studio_passport.png';
             a.href = canvas.toDataURL('image/png');
             a.click();
         }
