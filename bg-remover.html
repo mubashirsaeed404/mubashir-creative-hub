@@ -14,11 +14,10 @@
         .upload-area { border: 2px dashed var(--accent); background: #1a1a1e; border-radius: 12px; padding: 2.5rem; text-align: center; cursor: pointer; }
         .color-presets { display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
         .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
-        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; }
+        .preview-box { background: #000; border: 1px solid var(--border); border-radius: 10px; min-height: 300px; display: flex; align-items: center; justify-content: center; margin-top: 1.5rem; overflow: hidden; padding: 10px; }
         canvas { max-width: 100%; height: auto; }
         #status { color: var(--accent); font-weight: bold; margin-top: 10px; text-align: center; }
         .dl-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
-        .key-input { margin-top: 10px; width: 100%; padding: 8px; background: #18181b; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -34,11 +33,6 @@
         <h3>📁 Upload Image (JPG / PNG)</h3>
         <p style="color:#a1a1aa; margin:0;">Click to select photo for HD Studio Cutout</p>
         <input type="file" id="file-in" accept="image/*" style="display:none" onchange="processImage(event)">
-    </div>
-
-    <div style="margin-top:15px;">
-        <label style="font-size:0.85rem; color:#a1a1aa;">Remove.bg API Key (Optional for Unlimited HD):</label>
-        <input type="text" id="api-key" class="key-input" placeholder="Enter your free Remove.bg API Key or leave default">
     </div>
 
     <div id="status"></div>
@@ -60,6 +54,13 @@
 </div>
 
 <script>
+    // System Auto API Keys (Aap yahan multiple keys comma lagakar add kar sakte hain)
+    const SYSTEM_API_KEYS = [
+        "5NDMCJtvrWgjj2YKJ2d75eH", // Aap ki current working key
+        "KEY_2_HERE",
+        "KEY_3_HERE"
+    ];
+
     let cutImg = new Image();
     let currentColor = '#0055ff';
 
@@ -68,41 +69,47 @@
         if(!file) return;
 
         let status = document.getElementById('status');
-        status.innerText = "⏳ Processing image with HD Studio AI... Please wait.";
+        status.innerText = "⏳ Processing HD Studio Cutout... Please wait.";
 
-        let customKey = document.getElementById('api-key').value.trim();
-        let apiKey = customKey || '5NDMCJtvWgjj2jYKJ2d75eH'; // Backup Key
+        let success = false;
 
-        let formData = new FormData();
-        formData.append('image_file', file);
-        formData.append('size', 'auto');
+        for (let apiKey of SYSTEM_API_KEYS) {
+            if(apiKey.includes("KEY_")) continue; // Skip placeholders
 
-        try {
-            // Direct Remove.bg API call with no proxy header loss
-            let response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                method: 'POST',
-                headers: {
-                    'X-Api-Key': apiKey
-                },
-                body: formData
-            });
+            try {
+                let formData = new FormData();
+                formData.append('image_file', file);
+                formData.append('size', 'auto');
 
-            if (!response.ok) {
-                let errData = await response.json().catch(() => ({}));
-                throw new Error(errData.errors?.[0]?.title || "API Limit reached / Invalid Key");
+                let response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: { 'X-Api-Key': apiKey },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    let blob = await response.blob();
+                    loadCutout(blob);
+                    success = true;
+                    break; // Success hone par loop rukh jayega
+                }
+            } catch(err) {
+                console.log("Key failed or quota over, trying next key...", err);
             }
-
-            let blob = await response.blob();
-            cutImg.onload = function() {
-                renderCanvas();
-                status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
-            };
-            cutImg.src = URL.createObjectURL(blob);
-
-        } catch(err) {
-            status.innerText = "⚠️ Error: " + err.message + ". Apni Remove.bg ki free API Key daal kar try karein.";
-            console.error(err);
         }
+
+        if(!success) {
+            status.innerText = "⚠️ Processing limit reached. Please update API key list in code.";
+        }
+    }
+
+    function loadCutout(blob) {
+        let status = document.getElementById('status');
+        cutImg.onload = function() {
+            renderCanvas();
+            status.innerText = "✅ Background Removed Perfectly with 0 Halo Lines!";
+        };
+        cutImg.src = URL.createObjectURL(blob);
     }
 
     function changeBg(color) {
@@ -128,7 +135,7 @@
         let canvas = document.getElementById('out-canvas');
         if(canvas.width === 0) return alert("Please upload an image first.");
         let a = document.createElement('a');
-        a.download = 'studio_passport_photo.png';
+        a.download = 'passport_studio_photo.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
     }
