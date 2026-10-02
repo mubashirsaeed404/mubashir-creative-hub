@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Passport Studio Editor - Pakistan</title>
+    <!-- Client-Side AI Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.3.8/dist/index.umd.js"></script>
     <style>
         :root { --bg: #1e1e1e; --card: #2d2d2d; --accent: #00b0ff; --text: #fafafa; --border: #3d3d3d; }
         body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
@@ -64,20 +66,11 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            status.innerText = "Removing Background... Please wait...";
-
-            const formData = new FormData();
-            formData.append('image', file);
+            status.innerText = "Loading AI Model in Browser... Please wait...";
 
             try {
-                const response = await fetch('https://mubashir-creative-hub.vercel.app/remove-bg', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error("Processing failed");
-
-                const blob = await response.blob();
+                // Direct Browser AI Removal
+                const blob = await imglyRemoveBackground(file);
                 const url = URL.createObjectURL(blob);
 
                 cutImg.onload = () => {
@@ -90,7 +83,7 @@
 
             } catch (err) {
                 console.error(err);
-                status.innerText = "Error removing background. Please try again.";
+                status.innerText = "Error processing image. Please try another photo.";
             }
         }
 
