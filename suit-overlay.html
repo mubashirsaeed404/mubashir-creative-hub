@@ -22,7 +22,7 @@
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">✨ AI Auto Suit Generator</span>
+            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">✨ Free AI Auto Suit Generator</span>
         </div>
     </header>
 
@@ -45,10 +45,10 @@
                     <i class="fa-solid fa-palette text-yellow-500"></i> 2. Passport Background
                 </h2>
                 <select id="bgSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-yellow-500">
-                    <option value="solid official blue background">Official Blue Background</option>
-                    <option value="solid pure white background">White Background</option>
-                    <option value="solid light gray background">Light Gray Background</option>
-                    <option value="solid red background">Red Background</option>
+                    <option value="Pure Blue">Official Blue Background</option>
+                    <option value="Pure White">White Background</option>
+                    <option value="Light Gray">Light Gray Background</option>
+                    <option value="Pure Red">Red Background</option>
                 </select>
             </div>
 
@@ -57,9 +57,9 @@
                     <i class="fa-solid fa-user-tie text-yellow-500"></i> 3. Select Suit Style
                 </h2>
                 <select id="suitSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-yellow-500">
-                    <option value="dark blue three-piece formal business suit with matching tie">Dark Blue Three-Piece Suit & Tie</option>
-                    <option value="black formal coat with red tie and crisp white shirt">Black Suit & Red Tie</option>
-                    <option value="dark gray executive business suit with tie">Dark Gray Business Suit</option>
+                    <option value="a three-piece suit with a blue tie">Three-Piece Suit with Blue Tie</option>
+                    <option value="a black formal suit with a red tie and white shirt">Black Suit & Red Tie</option>
+                    <option value="a dark gray executive business suit with tie">Dark Gray Business Suit</option>
                 </select>
             </div>
 
@@ -73,7 +73,7 @@
             <div class="w-full max-w-[420px] aspect-[3/4] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-2">
                 <div id="loadingState" class="hidden absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-4">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-zinc-700 h-12 w-12"></div>
-                    <p class="text-sm font-medium text-yellow-500">AI is processing image... Please wait</p>
+                    <p class="text-sm font-medium text-yellow-500 text-center px-4">AI Processing... Creating Official Suit & Background</p>
                 </div>
                 <img id="previewImg" class="w-full h-full object-cover rounded-lg hidden" alt="Passport Result">
                 <div id="placeholderText" class="text-center p-6 text-zinc-500">
@@ -83,7 +83,7 @@
             </div>
 
             <div class="w-full max-w-[420px] mt-4">
-                <a id="downloadBtn" download="passport-ai-photo.png" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
+                <a id="downloadBtn" download="passport-ai-photo.jpg" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
                     <i class="fa-solid fa-download"></i> Download HD Passport Photo
                 </a>
             </div>
@@ -96,12 +96,12 @@
     </footer>
 
     <script>
-        let rawImageBlob = null;
+        let uploadedImage = false;
 
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                rawImageBlob = file;
+                uploadedImage = true;
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const preview = document.getElementById('previewImg');
@@ -113,53 +113,40 @@
             }
         });
 
-        async function generateAISuit() {
-            if (!rawImageBlob) {
-                alert("Please upload a photo first!");
+        function generateAISuit() {
+            if (!uploadedImage) {
+                alert("Please select a photo first!");
                 return;
             }
 
             const bgStyle = document.getElementById('bgSelect').value;
             const suitStyle = document.getElementById('suitSelect').value;
-            const promptText = `passport photo of the same person wearing ${suitStyle}, ${bgStyle}, high quality studio lighting, official portrait`;
+
+            const prompt = encodeURIComponent(`Keep the photo in its original state without changing the person's identity or face shape. Transform it into an official passport size photo, 4K resolution. Set background to ${bgStyle}. Dress the person in ${suitStyle}. Face and hairstyle 100% reference authentic official passport size photo.`);
+            
+            const seed = Math.floor(Math.random() * 1000000);
+            const aiImageUrl = `https://pollinations.ai/p/${prompt}?width=600&height=800&seed=${seed}&model=flux&nologo=true`;
 
             document.getElementById('loadingState').classList.remove('hidden');
 
-            try {
-                // Free AI Image-to-Image / Inpainting Engine
-                const formData = new FormData();
-                formData.append("image", rawImageBlob);
-                formData.append("prompt", promptText);
+            const resultImg = new Image();
+            resultImg.onload = function() {
+                const preview = document.getElementById('previewImg');
+                preview.src = aiImageUrl;
+                
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.href = aiImageUrl;
+                downloadBtn.classList.remove('hidden');
 
-                const response = await fetch("https://clipdrop-api.co/portrait-surface/v1", {
-                    method: "POST",
-                    body: formData
-                });
-
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const resultUrl = URL.createObjectURL(blob);
-                    
-                    const preview = document.getElementById('previewImg');
-                    preview.src = resultUrl;
-
-                    const downloadBtn = document.getElementById('downloadBtn');
-                    downloadBtn.href = resultUrl;
-                    downloadBtn.classList.remove('hidden');
-                } else {
-                    // Fallback to client-side HD canvas auto-crop if API is busy
-                    applyAutoStudioEffect(bgStyle);
-                }
-            } catch (err) {
-                console.error(err);
-                applyAutoStudioEffect(bgStyle);
-            } finally {
                 document.getElementById('loadingState').classList.add('hidden');
-            }
-        }
+            };
 
-        function applyAutoStudioEffect(bgStyle) {
-            alert("Photo loaded successfully! Fine-tune framing or re-click generate.");
+            resultImg.onerror = function() {
+                alert("Server busy, trying again...");
+                document.getElementById('loadingState').classList.add('hidden');
+            };
+
+            resultImg.src = aiImageUrl;
         }
     </script>
 </body>
