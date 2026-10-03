@@ -35,7 +35,7 @@
                 <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider mb-1 flex items-center gap-2">
                     <i class="fa-solid fa-key"></i> Google Gemini API Key
                 </h2>
-                <p class="text-xs text-zinc-400 mb-3">Paste your Google AI Studio API key (AIzaSy...)</p>
+                <p class="text-xs text-zinc-400 mb-3">Google AI Studio ki API Key yahan paste karein (AIzaSy...)</p>
                 <input type="password" id="apiKeyInput" placeholder="AIzaSy***********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
             </div>
 
@@ -54,7 +54,7 @@
             </button>
 
             <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-400 space-y-1">
-                <p class="font-semibold text-yellow-500 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Applied Custom Studio Prompt:</p>
+                <p class="font-semibold text-yellow-500 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Applied Custom Prompt:</p>
                 <p class="italic">"Keep photo in original state, pure blue background, three-piece suit with blue tie, 35mm x 45mm passport dimensions, face and hairstyle 100% reference."</p>
             </div>
 
@@ -69,7 +69,7 @@
                 <img id="resultImg" class="w-full h-full object-cover rounded-lg hidden" alt="Passport Result">
                 <div id="placeholderText" class="text-center p-6 text-zinc-500">
                     <i class="fa-solid fa-id-card text-5xl mb-3 text-zinc-700"></i>
-                    <p class="text-sm">Gemini API Key dalein, photo upload karein aur Generate par click karein</p>
+                    <p class="text-sm">API Key dalein, photo upload karein aur Generate par click karein</p>
                 </div>
             </div>
 
@@ -111,7 +111,7 @@
         async function generateGeminiPhoto() {
             const apiKey = document.getElementById('apiKeyInput').value.trim();
             if (!apiKey) {
-                alert("Pehle Google Gemini API Key (AIzaSy...) enter karein!");
+                alert("Pehle Google Gemini API Key enter karein!");
                 return;
             }
 
@@ -122,10 +122,10 @@
 
             document.getElementById('loadingState').classList.remove('hidden');
 
-            // Exact Prompt requested by Mubashir Saeed
             const customPrompt = "Keep the uploaded photo exactly in its original state without changing the person’s identity or face shape. Transform it into a passport size photo with dimensions of 35mm width × 45mm height, 4K resolution. Set the background to Pure Blue. Dress the person in a three-piece suit with a blue tie. Adjust the hairstyle to suit the face. The final photo must look authentic, realistic, and official passport size. Face and hairstyle 100% Reference. dont change face and hair style.";
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            // Updated Model to official image generation endpoint
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
 
             try {
                 const response = await fetch(apiUrl, {
@@ -142,7 +142,10 @@
                                     }
                                 }
                             ]
-                        }]
+                        }],
+                        generationConfig: {
+                            responseModalities: ["TEXT", "IMAGE"]
+                        }
                     })
                 });
 
@@ -177,14 +180,14 @@
                     }
 
                     if (!imgFound) {
-                        alert("Gemini ne response generate kiya hai. Google AI Studio ki image-out settings active rakhein.");
+                        alert("Response mil gaya hai. Aapki API key Google AI Studio (aistudio.google.com) se Image Modality enabled honi chahiye.");
                     }
                 } else {
                     alert("Response decode nahi ho saka. Dobara try karein.");
                 }
 
             } catch (err) {
-                alert("Network Error: Gemini API Key check karein.");
+                alert("Network Error: Key aur Internet connection verify karein.");
             } finally {
                 document.getElementById('loadingState').classList.add('hidden');
             }
