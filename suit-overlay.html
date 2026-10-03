@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hugging Face Studio Engine - Mubashir Photo Studio</title>
+    <title>Mubashir Photo Studio - Passport Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #0f0f11; color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .btn-gold { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #000; font-weight: 600; }
         .btn-gold:hover { background: linear-gradient(135deg, #fde047 0%, #eab308 100%); }
-        .loader { border-top-color: #eab308; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -22,7 +20,7 @@
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full font-medium">⚡ HuggingFace Free Engine</span>
+            <span class="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full font-medium">⚡ Instant Offline Studio Engine</span>
         </div>
     </header>
 
@@ -30,117 +28,139 @@
         
         <div class="lg:col-span-5 space-y-6">
             
-            <div class="bg-zinc-900 border border-yellow-500/30 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider mb-1 flex items-center gap-2">
-                    <i class="fa-solid fa-key"></i> Hugging Face Access Token
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> 1. Upload Photo
                 </h2>
-                <p class="text-xs text-zinc-400 mb-3">hf_... Token paste karein (huggingface.co/settings/tokens)</p>
-                <input type="password" id="apiKeyInput" placeholder="hf_***********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
-            </div>
-
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> Upload Customer Photo
-                </h2>
-                <input type="file" id="imageInput" accept="image/*" class="hidden">
-                <label for="imageInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg">
-                    <i class="fa-solid fa-image"></i> Select Original Photo
+                <input type="file" id="userImgInput" accept="image/*" class="hidden">
+                <label for="userImgInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg">
+                    <i class="fa-solid fa-image"></i> Select Customer Photo
                 </label>
             </div>
 
-            <button onclick="generatePhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Official Passport Photo
+            <!-- Background Color Selector -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-3">
+                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-palette"></i> 2. Background Color
+                </h2>
+                <div class="flex gap-3">
+                    <button onclick="changeBg('#0044ff')" class="flex-1 py-2 rounded-lg bg-blue-600 text-xs font-semibold text-white border border-blue-400">Passport Blue</button>
+                    <button onclick="changeBg('#ffffff')" class="flex-1 py-2 rounded-lg bg-white text-xs font-semibold text-black">Pure White</button>
+                    <button onclick="changeBg('#ff0000')" class="flex-1 py-2 rounded-lg bg-red-600 text-xs font-semibold text-white">Red</button>
+                </div>
+            </div>
+
+            <!-- Suit Position & Size Controls -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-shirt"></i> 3. Adjust Suit Overlay
+                </h2>
+                
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1">Suit Size (Zoom):</label>
+                    <input type="range" id="suitScale" min="0.5" max="2" step="0.02" value="1" class="w-full accent-yellow-500" oninput="drawCanvas()">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-1">Move Up / Down:</label>
+                        <input type="range" id="suitY" min="-150" max="150" step="1" value="0" class="w-full accent-yellow-500" oninput="drawCanvas()">
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-1">Move Left / Right:</label>
+                        <input type="range" id="suitX" min="-150" max="150" step="1" value="0" class="w-full accent-yellow-500" oninput="drawCanvas()">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="downloadPassportPhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
+                <i class="fa-solid fa-download"></i> Download Passport Photo (35x45)
             </button>
 
         </div>
 
         <div class="lg:col-span-7 flex flex-col items-center justify-center">
-            <div class="w-full max-w-[413px] aspect-[35/45] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-2">
-                <div id="loadingState" class="hidden absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-4">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-zinc-700 h-12 w-12"></div>
-                    <p class="text-sm font-medium text-yellow-500 text-center px-4">Generating...<br><span class="text-xs text-zinc-400">Processing image via Hugging Face AI...</span></p>
-                </div>
-                <img id="resultImg" class="w-full h-full object-cover rounded-lg hidden" alt="Passport Result">
-                <div id="placeholderText" class="text-center p-6 text-zinc-500">
-                    <i class="fa-solid fa-id-card text-5xl mb-3 text-zinc-700"></i>
-                    <p class="text-sm">HF Token enter karein, photo upload karke generate karein</p>
-                </div>
+            <div class="border-2 border-yellow-500/40 rounded-xl p-2 bg-zinc-900 shadow-2xl">
+                <!-- 35mm x 45mm Aspect Ratio Canvas -->
+                <canvas id="studioCanvas" width="413" height="531" class="rounded-lg bg-blue-600 max-w-full h-auto"></canvas>
             </div>
-
-            <div class="w-full max-w-[413px] mt-4">
-                <a id="downloadBtn" download="mubashir-studio-passport.png" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
-                    <i class="fa-solid fa-download"></i> Download Passport Photo
-                </a>
-            </div>
+            <p class="text-xs text-zinc-500 mt-3"><i class="fa-solid fa-circle-info"></i> Standard Passport Size (35mm x 45mm @ 300 DPI)</p>
         </div>
 
     </main>
 
-    <script>
-        let imageBlobData = null;
+    <footer class="border-t border-zinc-800 py-4 text-center text-xs text-zinc-500">
+        © 2026 Mubashir Creative Hub & Photo Studio.
+    </footer>
 
-        document.getElementById('imageInput').addEventListener('change', function(e) {
+    <script>
+        const canvas = document.getElementById('studioCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let bgColor = '#0044ff';
+        let userImg = null;
+        let suitImg = new Image();
+        
+        // Transparent PNG 3-Piece Suit & Tie Template
+        suitImg.src = 'https://i.ibb.co/68v81yM/suit-overlay.png';
+        suitImg.onload = () => drawCanvas();
+
+        document.getElementById('userImgInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                imageBlobData = file;
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const preview = document.getElementById('resultImg');
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                    document.getElementById('placeholderText').classList.add('hidden');
+                    userImg = new Image();
+                    userImg.onload = () => drawCanvas();
+                    userImg.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        async function generatePhoto() {
-            const token = document.getElementById('apiKeyInput').value.trim();
-            if (!token) {
-                alert("Pehle Hugging Face Token (hf_...) enter karein!");
-                return;
+        function changeBg(color) {
+            bgColor = color;
+            drawCanvas();
+        }
+
+        function drawCanvas() {
+            // Fill Background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Customer Photo
+            if (userImg) {
+                const scale = Math.max(canvas.width / userImg.width, canvas.height / userImg.height);
+                const x = (canvas.width / 2) - (userImg.width / 2) * scale;
+                const y = (canvas.height / 2) - (userImg.height / 2) * scale;
+                ctx.drawImage(userImg, x, y, userImg.width * scale, userImg.height * scale);
             }
-            if (!imageBlobData) {
-                alert("Pehle image upload karein!");
-                return;
-            }
 
-            document.getElementById('loadingState').classList.remove('hidden');
+            // Draw Suit Overlay
+            if (suitImg.complete) {
+                const scale = parseFloat(document.getElementById('suitScale').value);
+                const offsetX = parseInt(document.getElementById('suitX').value);
+                const offsetY = parseInt(document.getElementById('suitY').value);
 
-            const promptText = "Passport photo 35mmx45mm, pure blue background, wearing three-piece suit with blue tie, official 4k HD photo";
-
-            try {
-                const response = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
-                    headers: { 
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    },
-                    method: "POST",
-                    body: JSON.stringify({ inputs: promptText }),
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    alert("HF Error: " + (err.error || "Token invalid"));
-                    return;
-                }
-
-                const resultBlob = await response.blob();
-                const imageObjectURL = URL.createObjectURL(resultBlob);
-
-                const resultImg = document.getElementById('resultImg');
-                resultImg.src = imageObjectURL;
+                const suitWidth = canvas.width * scale;
+                const suitHeight = (suitImg.height * (suitWidth / suitImg.width));
                 
-                const downloadBtn = document.getElementById('downloadBtn');
-                downloadBtn.href = imageObjectURL;
-                downloadBtn.classList.remove('hidden');
+                const suitX = (canvas.width - suitWidth) / 2 + offsetX;
+                const suitY = (canvas.height - suitHeight) + offsetY;
 
-            } catch (err) {
-                alert("Network Error. Check token.");
-            } finally {
-                document.getElementById('loadingState').classList.add('hidden');
+                ctx.drawImage(suitImg, suitX, suitY, suitWidth, suitHeight);
             }
         }
+
+        function downloadPassportPhoto() {
+            const link = document.createElement('a');
+            link.download = 'mubashir-studio-passport.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Initial Draw
+        drawCanvas();
     </script>
 </body>
 </html>
