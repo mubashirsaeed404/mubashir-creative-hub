@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstantID Face-Lock AI - Mubashir Photo Studio</title>
+    <title>Gemini AI Studio - Mubashir Photo Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -22,7 +22,7 @@
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full font-medium">🔒 InstantID Face Lock Active</span>
+            <span class="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1 rounded-full font-medium">✨ Google Gemini AI Engine</span>
         </div>
     </header>
 
@@ -30,70 +30,52 @@
         
         <div class="lg:col-span-5 space-y-6">
             
+            <!-- Gemini API Key Input -->
             <div class="bg-zinc-900 border border-yellow-500/30 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider mb-1 flex items-center gap-2">
-                    <i class="fa-solid fa-key"></i> Replicate API Key
+                    <i class="fa-solid fa-key"></i> Google Gemini API Key
                 </h2>
-                <p class="text-xs text-zinc-400 mb-3">Enter Replicate Key (r8_...)</p>
-                <input type="password" id="apiKeyInput" placeholder="r8_*********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
+                <p class="text-xs text-zinc-400 mb-3">Paste your Google AI Studio API key (AIzaSy...)</p>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy***********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
             </div>
 
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> 1. Select Customer Photo
+                    <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> Upload Customer Photo
                 </h2>
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
                 <label for="imageInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg">
-                    <i class="fa-solid fa-image"></i> Upload Customer Photo
+                    <i class="fa-solid fa-image"></i> Select Original Photo
                 </label>
             </div>
 
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-yellow-500"></i> 2. Passport Background
-                </h2>
-                <select id="bgSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
-                    <option value="solid official blue passport background">Official Blue Background</option>
-                    <option value="solid plain white passport background">White Background</option>
-                    <option value="solid light gray studio background">Light Gray Background</option>
-                    <option value="solid red passport background">Red Background</option>
-                </select>
-            </div>
-
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-user-tie text-yellow-500"></i> 3. Formal Suit Selection
-                </h2>
-                <select id="suitSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
-                    <option value="wearing black formal business suit coat with red tie and white shirt">Black Suit & Red Tie</option>
-                    <option value="wearing dark navy blue executive suit with silk tie">Navy Blue Suit</option>
-                    <option value="wearing charcoal gray formal business suit with tie">Dark Gray Suit</option>
-                    <option value="wearing classic black tuxedo with bow tie">Classic Tuxedo</option>
-                </select>
-            </div>
-
-            <button onclick="generateInstantIDPhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Face-Lock Photo
+            <button onclick="generateGeminiPhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Official Passport Photo
             </button>
+
+            <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-400 space-y-1">
+                <p class="font-semibold text-yellow-500 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Applied Custom Studio Prompt:</p>
+                <p class="italic">"Keep photo in original state, pure blue background, three-piece suit with blue tie, 35mm x 45mm passport dimensions, face and hairstyle 100% reference."</p>
+            </div>
 
         </div>
 
         <div class="lg:col-span-7 flex flex-col items-center justify-center">
-            <div class="w-full max-w-[413px] aspect-[3/4] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-2">
+            <div class="w-full max-w-[413px] aspect-[35/45] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-2">
                 <div id="loadingState" class="hidden absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-4">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-zinc-700 h-12 w-12"></div>
-                    <p class="text-sm font-medium text-yellow-500 text-center px-4" id="statusText">Locking Face Identity & Applying Suit...<br><span class="text-xs text-zinc-400">Please wait 10-15 seconds</span></p>
+                    <p class="text-sm font-medium text-yellow-500 text-center px-4">Gemini AI Studio Generating...<br><span class="text-xs text-zinc-400">Locking face & hairstyle, applying 3-piece suit...</span></p>
                 </div>
                 <img id="resultImg" class="w-full h-full object-cover rounded-lg hidden" alt="Passport Result">
                 <div id="placeholderText" class="text-center p-6 text-zinc-500">
-                    <i class="fa-solid fa-user-check text-5xl mb-3 text-zinc-700"></i>
-                    <p class="text-sm">API Key paste karein, Photo upload karein aur Generate par click karein</p>
+                    <i class="fa-solid fa-id-card text-5xl mb-3 text-zinc-700"></i>
+                    <p class="text-sm">Gemini API Key dalein, photo upload karein aur Generate par click karein</p>
                 </div>
             </div>
 
             <div class="w-full max-w-[413px] mt-4">
-                <a id="downloadBtn" download="mubashir-studio-facelock-passport.png" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
-                    <i class="fa-solid fa-download"></i> Download HD Passport Photo
+                <a id="downloadBtn" download="mubashir-studio-passport-35x45.png" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
+                    <i class="fa-solid fa-download"></i> Download 4K Passport Photo
                 </a>
             </div>
         </div>
@@ -105,16 +87,20 @@
     </footer>
 
     <script>
-        let uploadedBase64 = null;
+        let base64CleanData = null;
+        let mimeType = "image/jpeg";
 
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                mimeType = file.type || "image/jpeg";
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    uploadedBase64 = event.target.result;
+                    const fullBase64 = event.target.result;
+                    base64CleanData = fullBase64.split(',')[1];
+                    
                     const preview = document.getElementById('resultImg');
-                    preview.src = uploadedBase64;
+                    preview.src = fullBase64;
                     preview.classList.remove('hidden');
                     document.getElementById('placeholderText').classList.add('hidden');
                 };
@@ -122,93 +108,86 @@
             }
         });
 
-        async function generateInstantIDPhoto() {
+        async function generateGeminiPhoto() {
             const apiKey = document.getElementById('apiKeyInput').value.trim();
             if (!apiKey) {
-                alert("Pehle apni Replicate API Key paste karein!");
+                alert("Pehle Google Gemini API Key (AIzaSy...) enter karein!");
                 return;
             }
 
-            if (!uploadedBase64) {
-                alert("Pehle photo upload karein!");
+            if (!base64CleanData) {
+                alert("Pehle customer ki original photo upload karein!");
                 return;
             }
 
             document.getElementById('loadingState').classList.remove('hidden');
 
-            const suitStyle = document.getElementById('suitSelect').value;
-            const bgStyle = document.getElementById('bgSelect').value;
-            const fullPrompt = `Passport photo of the exact same person, ${suitStyle}, ${bgStyle}, sharp focus, studio quality`;
+            // Exact Prompt requested by Mubashir Saeed
+            const customPrompt = "Keep the uploaded photo exactly in its original state without changing the person’s identity or face shape. Transform it into a passport size photo with dimensions of 35mm width × 45mm height, 4K resolution. Set the background to Pure Blue. Dress the person in a three-piece suit with a blue tie. Adjust the hairstyle to suit the face. The final photo must look authentic, realistic, and official passport size. Face and hairstyle 100% Reference. dont change face and hair style.";
 
-            // Using CORS Proxy bypass to prevent network error
-            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent("https://api.replicate.com/v1/predictions");
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
             try {
-                const response = await fetch(proxyUrl, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Token ${apiKey}`,
-                        "Content-Type": "application/json"
-                    },
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        version: "41ecf0db211e5c303f207f4a6439a4669cf72382c40c3ff4158ba6d43e70d62a",
-                        input: {
-                            image: uploadedBase64,
-                            prompt: fullPrompt,
-                            negative_prompt: "deformed, distorted face, changed identity, blur, low quality",
-                            ip_adapter_scale: 0.8,
-                            control_strength: 0.8
-                        }
+                        contents: [{
+                            parts: [
+                                { text: customPrompt },
+                                {
+                                    inline_data: {
+                                        mime_type: mimeType,
+                                        data: base64CleanData
+                                    }
+                                }
+                            ]
+                        }]
                     })
                 });
 
-                const prediction = await response.json();
-                
-                if (prediction.error || prediction.detail) {
-                    alert("API Error: " + (prediction.error || prediction.detail || "Invalid Key"));
+                const data = await response.json();
+
+                if (data.error) {
+                    alert("Gemini API Error: " + data.error.message);
                     document.getElementById('loadingState').classList.add('hidden');
                     return;
                 }
 
-                checkPredictionStatus(prediction.urls.get, apiKey);
+                const candidates = data.candidates;
+                if (candidates && candidates[0] && candidates[0].content) {
+                    const parts = candidates[0].content.parts;
+                    let imgFound = false;
+
+                    for (let part of parts) {
+                        if (part.inline_data || part.inlineData) {
+                            const imgData = part.inline_data || part.inlineData;
+                            const newSrc = `data:${imgData.mime_type || imgData.mimeType};base64,${imgData.data}`;
+                            
+                            const resultImg = document.getElementById('resultImg');
+                            resultImg.src = newSrc;
+                            
+                            const downloadBtn = document.getElementById('downloadBtn');
+                            downloadBtn.href = newSrc;
+                            downloadBtn.classList.remove('hidden');
+                            
+                            imgFound = true;
+                            break;
+                        }
+                    }
+
+                    if (!imgFound) {
+                        alert("Gemini ne response generate kiya hai. Google AI Studio ki image-out settings active rakhein.");
+                    }
+                } else {
+                    alert("Response decode nahi ho saka. Dobara try karein.");
+                }
 
             } catch (err) {
-                alert("Network issue. Replicate Key verified karein.");
+                alert("Network Error: Gemini API Key check karein.");
+            } finally {
                 document.getElementById('loadingState').classList.add('hidden');
             }
-        }
-
-        async function checkPredictionStatus(getUrl, apiKey) {
-            const proxyGetUrl = "https://corsproxy.io/?" + encodeURIComponent(getUrl);
-            
-            const interval = setInterval(async () => {
-                try {
-                    const res = await fetch(proxyGetUrl, {
-                        headers: { "Authorization": `Token ${apiKey}` }
-                    });
-                    const statusData = await res.json();
-
-                    if (statusData.status === "succeeded") {
-                        clearInterval(interval);
-                        const outputUrl = statusData.output[0];
-                        
-                        const resultImg = document.getElementById('resultImg');
-                        resultImg.src = outputUrl;
-                        
-                        const downloadBtn = document.getElementById('downloadBtn');
-                        downloadBtn.href = outputUrl;
-                        downloadBtn.classList.remove('hidden');
-                        document.getElementById('loadingState').classList.add('hidden');
-                    } else if (statusData.status === "failed") {
-                        clearInterval(interval);
-                        alert("Generation failed. Dobara try karein.");
-                        document.getElementById('loadingState').classList.add('hidden');
-                    }
-                } catch(e) {
-                    clearInterval(interval);
-                    document.getElementById('loadingState').classList.add('hidden');
-                }
-            }, 3000);
         }
     </script>
 </body>
