@@ -3,95 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO Meta Tags for Google Search Ranking -->
-    <title>Online Suit & Tie Overlay Tool | Mubashir Photo Studio</title>
-    <meta name="description" content="Add formal suits, coat, and tie overlay to your passport photo online. Free background color change for Pakistan Passport, CNIC, and Visa photos at Mubashir Photo Studio.">
-    <meta name="keywords" content="passport photo suit editor, formal suit overlay online, coat tie png editor, pakistan passport background changer, mubashir photo studio">
-    <meta name="author" content="Mubashir Saeed">
-    <meta name="robots" content="index, follow">
-
-    <!-- Open Graph Tags for Social Media Sharing -->
-    <meta property="og:title" content="Tie & Suit Overlay Tool - Mubashir Photo Studio">
-    <meta property="og:description" content="Instantly add HD formal suits, coat, and tie to your photo online. Free passport photo editor.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mubashir-creative-hub.vercel.app/suit-overlay.html">
-
-    <!-- Google Structured Data Schema -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Tie & Suit Overlay Tool",
-      "url": "https://mubashir-creative-hub.vercel.app/suit-overlay.html",
-      "applicationCategory": "DesignApplication",
-      "operatingSystem": "All",
-      "author": {
-        "@type": "Person",
-        "name": "Mubashir Saeed"
-      },
-      "description": "Online tool to add coat, suit, and tie overlay to passport photos with custom background colors."
-    }
-    </script>
-
+    <title>Tie & Suit Overlay - Mubashir Photo Studio</title>
+    <meta name="description" content="Add formal suits, coat, and tie overlay to your passport photo online at Mubashir Photo Studio.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #0f0f11;
-            color: #f3f4f6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .canvas-container {
-            position: relative;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            background: #18181b;
-            border: 2px dashed #3f3f46;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-            color: #000;
-            font-weight: 600;
-        }
-        .btn-gold:hover {
-            background: linear-gradient(135deg, #fde047 0%, #eab308 100%);
-        }
-        .suit-card {
-            border: 2px solid #27272a;
-            transition: all 0.2s ease;
-        }
-        .suit-card:hover, .suit-card.selected {
-            border-color: #eab308;
-            background-color: #27272a;
-        }
+        body { background-color: #0f0f11; color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .canvas-container { position: relative; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); background: #18181b; border: 2px dashed #3f3f46; border-radius: 12px; overflow: hidden; }
+        .btn-gold { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #000; font-weight: 600; }
+        .btn-gold:hover { background: linear-gradient(135deg, #fde047 0%, #eab308 100%); }
+        .suit-card { border: 2px solid #27272a; transition: all 0.2s ease; }
+        .suit-card:hover, .suit-card.selected { border-color: #eab308; background-color: #27272a; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-    <!-- Header -->
     <header class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur sticky top-0 z-50 py-4 px-6">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <a href="index.html" class="text-zinc-400 hover:text-white transition">
-                    <i class="fa-solid fa-arrow-left text-xl"></i>
-                </a>
+                <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">
-                👔 Tie & Suit Overlay Tool
-            </span>
+            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">👔 Suit & Tie Overlay Tool</span>
         </div>
     </header>
 
-    <!-- Main Workspace -->
     <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- Left Controls / Suit Selector -->
         <div class="lg:col-span-4 space-y-6">
             
-            <!-- Upload Photo Section -->
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> 1. Upload Photo
@@ -102,7 +42,6 @@
                 </label>
             </div>
 
-            <!-- Background Color Preset -->
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-palette text-yellow-500"></i> 2. Passport Background
@@ -115,37 +54,29 @@
                 </div>
             </div>
 
-            <!-- Suit Selection Gallery -->
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-user-tie text-yellow-500"></i> 3. Select Suit Style
                 </h2>
-                <div class="grid grid-cols-2 gap-3" id="suitGrid">
-                    <!-- Suits injected via JS -->
-                </div>
+                <div class="grid grid-cols-2 gap-3" id="suitGrid"></div>
             </div>
 
-            <!-- Canvas Adjustments -->
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-sliders text-yellow-500"></i> 4. Fine Adjustments
                 </h2>
-                
                 <div>
                     <label class="text-xs text-zinc-400 flex justify-between">Suit Size <span id="scaleVal">100%</span></label>
-                    <input type="range" id="scaleRange" min="0.3" max="2" step="0.01" value="1" class="w-full accent-yellow-500">
+                    <input type="range" id="scaleRange" min="0.3" max="2.5" step="0.01" value="1" class="w-full accent-yellow-500">
                 </div>
-
                 <div>
                     <label class="text-xs text-zinc-400 flex justify-between">Up / Down Position <span id="posYVal">0px</span></label>
-                    <input type="range" id="posYRange" min="-200" max="200" step="1" value="0" class="w-full accent-yellow-500">
+                    <input type="range" id="posYRange" min="-300" max="300" step="1" value="0" class="w-full accent-yellow-500">
                 </div>
-
                 <div>
                     <label class="text-xs text-zinc-400 flex justify-between">Left / Right Position <span id="posXVal">0px</span></label>
-                    <input type="range" id="posXRange" min="-200" max="200" step="1" value="0" class="w-full accent-yellow-500">
+                    <input type="range" id="posXRange" min="-300" max="300" step="1" value="0" class="w-full accent-yellow-500">
                 </div>
-
                 <div>
                     <label class="text-xs text-zinc-400 flex justify-between">Rotation <span id="rotVal">0°</span></label>
                     <input type="range" id="rotRange" min="-30" max="30" step="1" value="0" class="w-full accent-yellow-500">
@@ -154,14 +85,11 @@
 
         </div>
 
-        <!-- Right Preview Canvas -->
         <div class="lg:col-span-8 flex flex-col items-center justify-center">
             <div class="canvas-container w-full max-w-[450px] aspect-[3/4] flex items-center justify-center relative">
                 <canvas id="photoCanvas" class="w-full h-full object-contain"></canvas>
             </div>
-
-            <!-- Download Action -->
-            <div class="w-full max-w-[450px] mt-6 flex gap-4">
+            <div class="w-full max-w-[450px] mt-6">
                 <button onclick="downloadImage()" class="w-full btn-gold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl">
                     <i class="fa-solid fa-download"></i> Download Passport Photo
                 </button>
@@ -170,12 +98,10 @@
 
     </main>
 
-    <!-- Footer -->
     <footer class="border-t border-zinc-800 py-4 text-center text-xs text-zinc-500">
         © 2026 Mubashir Creative Hub & Photo Studio. All Rights Reserved.
     </footer>
 
-    <!-- Script / Interactive Canvas Logic -->
     <script>
         const canvas = document.getElementById('photoCanvas');
         const ctx = canvas.getContext('2d');
@@ -184,53 +110,49 @@
         let suitImg = new Image();
         let bgColor = '#0055ff';
 
-        // Suit State
-        let suitState = {
-            scale: 1,
-            x: 0,
-            y: 0,
-            rotation: 0
-        };
+        let suitState = { scale: 1, x: 0, y: 120, rotation: 0 };
 
-        // Standard Canvas Dimensions (Passport Ratio 3:4)
         canvas.width = 600;
         canvas.height = 800;
 
-        // Sample HD Vector Suit Templates
+        // HD Real PNG Suit URLs
         const suits = [
             {
-                name: "Classic Dark Blue Suit",
-                svg: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><path d="M120 180 L200 240 L280 180 L350 400 L50 400 Z" fill="%231e293b"/><path d="M160 180 L200 280 L240 180 L200 220 Z" fill="%23ffffff"/><path d="M190 200 L210 200 L205 320 L195 320 Z" fill="%231e3a8a"/><polygon points="170,180 200,220 200,400 130,400" fill="%230f172a"/><polygon points="230,180 200,220 200,400 270,400" fill="%230f172a"/></svg>`
+                name: "Black Suit & Red Tie",
+                url: "https://pngimg.com/uploads/suit/suit_PNG8123.png"
             },
             {
-                name: "Black Formal Coat & Red Tie",
-                svg: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><path d="M110 170 L200 240 L290 170 L360 400 L40 400 Z" fill="%2318181b"/><path d="M150 170 L200 270 L250 170 L200 210 Z" fill="%23ffffff"/><path d="M190 190 L210 190 L206 330 L194 330 Z" fill="%23dc2626"/><polygon points="160,170 200,210 200,400 120,400" fill="%2309090b"/><polygon points="240,170 200,210 200,400 280,400" fill="%2309090b"/></svg>`
+                name: "Navy Blue Suit",
+                url: "https://pngimg.com/uploads/suit/suit_PNG8128.png"
+            },
+            {
+                name: "Classic Black Tuxedo",
+                url: "https://pngimg.com/uploads/suit/suit_PNG8135.png"
             }
         ];
 
-        // Render Suit Cards
         const suitGrid = document.getElementById('suitGrid');
         suits.forEach((suit, index) => {
             const card = document.createElement('div');
             card.className = `suit-card p-2 rounded-lg cursor-pointer flex flex-col items-center bg-zinc-800 ${index===0?'selected':''}`;
-            card.innerHTML = `<img src="${suit.svg}" class="h-24 object-contain mb-1"><span class="text-[10px] text-zinc-300 text-center font-medium">${suit.name}</span>`;
+            card.innerHTML = `<img src="${suit.url}" class="h-20 object-contain mb-1"><span class="text-[10px] text-zinc-300 text-center font-medium">${suit.name}</span>`;
             card.onclick = () => {
                 document.querySelectorAll('.suit-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
-                loadSuit(suit.svg);
+                loadSuit(suit.url);
             };
             suitGrid.appendChild(card);
         });
 
-        // Initialize First Suit
-        loadSuit(suits[0].svg);
+        loadSuit(suits[0].url);
 
-        function loadSuit(svgData) {
+        function loadSuit(url) {
+            suitImg = new Image();
+            suitImg.crossOrigin = "Anonymous";
             suitImg.onload = renderCanvas;
-            suitImg.src = svgData;
+            suitImg.src = url;
         }
 
-        // Image Input Handler
         document.getElementById('imageInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -244,13 +166,11 @@
             }
         });
 
-        // Change Background Color
         function changeBg(color) {
             bgColor = color;
             renderCanvas();
         }
 
-        // Canvas Redraw Logic
         function renderCanvas() {
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -267,17 +187,17 @@
                 ctx.fillText("Please Upload Your Photo", canvas.width / 2, canvas.height / 2);
             }
 
-            if (suitImg.complete) {
+            if (suitImg.complete && suitImg.naturalWidth !== 0) {
                 ctx.save();
-                ctx.translate(canvas.width / 2 + suitState.x, canvas.height / 2 + suitState.y + 100);
+                ctx.translate(canvas.width / 2 + suitState.x, canvas.height / 2 + suitState.y);
                 ctx.rotate((suitState.rotation * Math.PI) / 180);
-                ctx.scale(suitState.scale, suitState.scale);
-                ctx.drawImage(suitImg, -200, -200, 400, 400);
+                const sWidth = 450 * suitState.scale;
+                const sHeight = (suitImg.height / suitImg.width) * sWidth;
+                ctx.drawImage(suitImg, -sWidth / 2, -sHeight / 2, sWidth, sHeight);
                 ctx.restore();
             }
         }
 
-        // Controls Bindings
         document.getElementById('scaleRange').oninput = (e) => {
             suitState.scale = parseFloat(e.target.value);
             document.getElementById('scaleVal').innerText = Math.round(suitState.scale * 100) + '%';
@@ -302,7 +222,6 @@
             renderCanvas();
         };
 
-        // Download Final Output
         function downloadImage() {
             const link = document.createElement('a');
             link.download = 'passport-suit-photo.jpg';
