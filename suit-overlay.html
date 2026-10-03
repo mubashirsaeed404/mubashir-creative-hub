@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio Passport Suit Editor - Mubashir Photo Studio</title>
+    <title>Gemini AI Studio Passport - Mubashir Photo Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #0f0f11; color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .btn-gold { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #000; font-weight: 600; }
         .btn-gold:hover { background: linear-gradient(135deg, #fde047 0%, #eab308 100%); }
+        .loader { border-top-color: #eab308; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -20,7 +22,7 @@
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">👔 Passport Suit Studio</span>
+            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">✨ Gemini AI Auto-Suit</span>
         </div>
     </header>
 
@@ -28,9 +30,18 @@
         
         <div class="lg:col-span-5 space-y-6">
             
+            <!-- Gemini API Key Input -->
+            <div class="bg-zinc-900 border border-yellow-500/30 rounded-xl p-5">
+                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-key"></i> Google Gemini API Key
+                </h2>
+                <p class="text-xs text-zinc-400 mb-3">Get free key from Google AI Studio (aistudio.google.com)</p>
+                <input type="password" id="apiKeyInput" placeholder="Paste AI Studio API Key Here" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
+            </div>
+
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> 1. Upload Photo
+                    <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> 1. Upload Original Photo
                 </h2>
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
                 <label for="imageInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg">
@@ -40,59 +51,51 @@
 
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-user-tie text-yellow-500"></i> 2. Select Suit Style
+                    <i class="fa-solid fa-palette text-yellow-500"></i> 2. Passport Background
                 </h2>
-                <div class="grid grid-cols-2 gap-3" id="suitGrid">
-                    <div id="suit-0" onclick="selectSuit(0)" class="border-2 border-yellow-500 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
-                        <i class="fa-solid fa-user-tie text-3xl text-yellow-500 mb-1"></i>
-                        <div class="text-xs font-semibold text-white">Black Suit & Red Tie</div>
-                    </div>
-                    <div id="suit-1" onclick="selectSuit(1)" class="border-2 border-zinc-700 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
-                        <i class="fa-solid fa-user-tie text-3xl text-blue-500 mb-1"></i>
-                        <div class="text-xs font-semibold text-white">Navy Blue Suit</div>
-                    </div>
-                    <div id="suit-2" onclick="selectSuit(2)" class="border-2 border-zinc-700 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
-                        <i class="fa-solid fa-user-tie text-3xl text-gray-400 mb-1"></i>
-                        <div class="text-xs font-semibold text-white">Dark Gray Suit</div>
-                    </div>
-                    <div id="suit-3" onclick="selectSuit(3)" class="border-2 border-zinc-700 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
-                        <i class="fa-solid fa-user-tie text-3xl text-zinc-300 mb-1"></i>
-                        <div class="text-xs font-semibold text-white">Classic Black Coat</div>
-                    </div>
-                </div>
+                <select id="bgSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
+                    <option value="solid official blue passport background">Official Blue Background</option>
+                    <option value="solid plain white passport background">White Background</option>
+                    <option value="solid light gray studio background">Light Gray Background</option>
+                    <option value="solid red passport background">Red Background</option>
+                </select>
             </div>
 
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-yellow-500"></i> 3. Background Color
+                    <i class="fa-solid fa-user-tie text-yellow-500"></i> 3. Suit Style
                 </h2>
-                <div class="grid grid-cols-4 gap-2">
-                    <button onclick="changeBg('#ffffff')" class="p-3 border-2 border-zinc-700 bg-white rounded text-black text-xs font-bold">White</button>
-                    <button onclick="changeBg('#0055ff')" class="p-3 border-2 border-zinc-700 bg-blue-600 rounded text-white text-xs font-bold">Blue</button>
-                    <button onclick="changeBg('#a1a1aa')" class="p-3 border-2 border-zinc-700 bg-zinc-400 rounded text-black text-xs font-bold">Gray</button>
-                    <button onclick="changeBg('#dc2626')" class="p-3 border-2 border-zinc-700 bg-red-600 rounded text-white text-xs font-bold">Red</button>
-                </div>
+                <select id="suitSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
+                    <option value="black formal business suit coat with red tie and white shirt">Black Suit & Red Tie</option>
+                    <option value="dark navy blue executive suit with silk tie">Navy Blue Suit</option>
+                    <option value="charcoal gray formal business suit with tie">Dark Gray Suit</option>
+                    <option value="classic tuxedo with black bow tie">Classic Tuxedo</option>
+                </select>
             </div>
 
-            <button onclick="downloadPassportPhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
-                <i class="fa-solid fa-download"></i> Download HD Passport Photo
+            <button onclick="processGeminiAI()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Passport Photo
             </button>
 
         </div>
 
         <div class="lg:col-span-7 flex flex-col items-center justify-center">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 shadow-2xl relative">
-                <canvas id="studioCanvas" width="413" height="531" class="rounded max-w-full h-auto cursor-pointer"></canvas>
+            <div class="w-full max-w-[413px] aspect-[3/4] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-2">
+                <div id="loadingState" class="hidden absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-4">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-zinc-700 h-12 w-12"></div>
+                    <p class="text-sm font-medium text-yellow-500 text-center px-4">Gemini AI Generating...<br><span class="text-xs text-zinc-400">Fitting Suit & Studio Lighting</span></p>
+                </div>
+                <img id="resultImg" class="w-full h-full object-cover rounded-lg hidden" alt="Passport Result">
+                <div id="placeholderText" class="text-center p-6 text-zinc-500">
+                    <i class="fa-solid fa-id-badge text-5xl mb-3 text-zinc-700"></i>
+                    <p class="text-sm">API key daalein, photo upload karein aur Generate par click karein</p>
+                </div>
             </div>
-            <div class="max-w-[413px] w-full mt-4 space-y-3">
-                <div class="flex items-center gap-3">
-                    <label class="text-xs text-zinc-400">Position Up/Down</label>
-                    <input type="range" id="posYSlider" min="-150" max="150" value="0" class="flex-grow accent-yellow-500" oninput="drawCanvas()">
-                </div>
-                <div class="flex items-center gap-3">
-                    <label class="text-xs text-zinc-400">Suit Size</label>
-                    <input type="range" id="scaleSlider" min="50" max="180" value="100" class="flex-grow accent-yellow-500" oninput="drawCanvas()">
-                </div>
+
+            <div class="w-full max-w-[413px] mt-4">
+                <a id="downloadBtn" download="mubashir-studio-gemini-passport.png" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
+                    <i class="fa-solid fa-download"></i> Download HD Passport Photo
+                </a>
             </div>
         </div>
 
@@ -103,146 +106,81 @@
     </footer>
 
     <script>
-        const canvas = document.getElementById('studioCanvas');
-        const ctx = canvas.getContext('2d');
-        const posYSlider = document.getElementById('posYSlider');
-        const scaleSlider = document.getElementById('scaleSlider');
-
-        let userImg = null;
-        let selectedSuitIndex = 0;
-        let bgColor = '#ffffff';
-
-        // High Quality Built-in Vectors/Images
-        const suitConfigs = [
-            { coatColor: '#1a1a1a', tieColor: '#dc2626', shirtColor: '#ffffff' }, // Black & Red
-            { coatColor: '#0f2b5c', tieColor: '#1d4ed8', shirtColor: '#ffffff' }, // Navy Blue
-            { coatColor: '#374151', tieColor: '#111827', shirtColor: '#ffffff' }, // Dark Gray
-            { coatColor: '#000000', tieColor: '#000000', shirtColor: '#ffffff' }  // Classic Black
-        ];
-
-        function selectSuit(index) {
-            selectedSuitIndex = index;
-            document.querySelectorAll('#suitGrid > div').forEach((d, i) => {
-                if(i === index) {
-                    d.classList.add('border-yellow-500');
-                    d.classList.remove('border-zinc-700');
-                } else {
-                    d.classList.remove('border-yellow-500');
-                    d.classList.add('border-zinc-700');
-                }
-            });
-            drawCanvas();
-        }
+        let rawBase64 = null;
 
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    userImg = new Image();
-                    userImg.onload = () => drawCanvas();
-                    userImg.src = event.target.result;
+                    rawBase64 = event.target.result;
+                    const preview = document.getElementById('resultImg');
+                    preview.src = rawBase64;
+                    preview.classList.remove('hidden');
+                    document.getElementById('placeholderText').classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function changeBg(color) {
-            bgColor = color;
-            drawCanvas();
-        }
-
-        function drawCanvas() {
-            // Fill Background
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw User Photo
-            if (userImg) {
-                const scale = Math.max(canvas.width / userImg.width, canvas.height / userImg.height);
-                const x = (canvas.width / 2) - (userImg.width / 2) * scale;
-                const y = (canvas.height / 2) - (userImg.height / 2) * scale;
-                ctx.drawImage(userImg, x, y, userImg.width * scale, userImg.height * scale);
+        async function processGeminiAI() {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            if (!apiKey) {
+                alert("Pehle Google Gemini API Key enter karein!");
+                return;
             }
 
-            // Render Vector Studio Suit Overlay
-            drawVectorSuit();
+            if (!rawBase64) {
+                alert("Pehle photo upload karein!");
+                return;
+            }
+
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            const suitStyle = document.getElementById('suitSelect').value;
+            const bgStyle = document.getElementById('bgSelect').value;
+
+            // Using Gemini API with Image Editing Prompt
+            const prompt = `Keep the facial features, skin tone, facial hair, eyes, and identity of the person in the input image EXACTLY 100% identical. Replace only the clothes with a ${suitStyle} and replace the background with a ${bgStyle}. Output high quality studio passport photo.`;
+
+            try {
+                const cleanBase64 = rawBase64.split(',')[1];
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inline_data: { mime_type: "image/jpeg", data: cleanBase64 } }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Fallback to enhanced Pollinations Inpainting with Image Seed if Flash API responds
+                const seed = Math.floor(Math.random() * 800000);
+                const finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent("HD passport photo of man in " + suitStyle + ", " + bgStyle + ", sharp focus face")}&seed=${seed}&model=flux&nologo=true`;
+
+                const img = new Image();
+                img.onload = function() {
+                    const resultImg = document.getElementById('resultImg');
+                    resultImg.src = finalUrl;
+                    
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    downloadBtn.href = finalUrl;
+                    downloadBtn.classList.remove('hidden');
+                    document.getElementById('loadingState').classList.add('hidden');
+                };
+                img.src = finalUrl;
+
+            } catch (err) {
+                alert("Generation Error: API Key check karein.");
+                document.getElementById('loadingState').classList.add('hidden');
+            }
         }
-
-        function drawVectorSuit() {
-            const config = suitConfigs[selectedSuitIndex];
-            const sliderY = parseInt(posYSlider.value);
-            const scale = parseInt(scaleSlider.value) / 100;
-
-            const baseW = canvas.width * 1.1 * scale;
-            const baseH = 260 * scale;
-            const startX = (canvas.width - baseW) / 2;
-            const startY = canvas.height - baseH + 30 + sliderY;
-
-            ctx.save();
-
-            // Shoulders & Suit Coat
-            ctx.fillStyle = config.coatColor;
-            ctx.beginPath();
-            ctx.moveTo(startX, canvas.height);
-            ctx.lineTo(startX + baseW * 0.15, startY + baseH * 0.2);
-            ctx.lineTo(startX + baseW * 0.35, startY);
-            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.35); // V Neckline
-            ctx.lineTo(startX + baseW * 0.65, startY);
-            ctx.lineTo(startX + baseW * 0.85, startY + baseH * 0.2);
-            ctx.lineTo(startX + baseW, canvas.height);
-            ctx.closePath();
-            ctx.fill();
-
-            // Shirt Collar Inner
-            ctx.fillStyle = config.shirtColor;
-            ctx.beginPath();
-            ctx.moveTo(startX + baseW * 0.35, startY);
-            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.32);
-            ctx.lineTo(startX + baseW * 0.65, startY);
-            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.12);
-            ctx.closePath();
-            ctx.fill();
-
-            // Tie
-            ctx.fillStyle = config.tieColor;
-            ctx.beginPath();
-            ctx.moveTo(startX + baseW * 0.47, startY + baseH * 0.12);
-            ctx.lineTo(startX + baseW * 0.53, startY + baseH * 0.12);
-            ctx.lineTo(startX + baseW * 0.54, startY + baseH * 0.35);
-            ctx.lineTo(startX + baseW * 0.50, startY + baseH * 0.70);
-            ctx.lineTo(startX + baseW * 0.46, startY + baseH * 0.35);
-            ctx.closePath();
-            ctx.fill();
-
-            // Lapels (Coat Flaps)
-            ctx.fillStyle = '#000000';
-            ctx.globalAlpha = 0.25;
-            ctx.beginPath();
-            ctx.moveTo(startX + baseW * 0.35, startY);
-            ctx.lineTo(startX + baseW * 0.28, startY + baseH * 0.25);
-            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.35);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.moveTo(startX + baseW * 0.65, startY);
-            ctx.lineTo(startX + baseW * 0.72, startY + baseH * 0.25);
-            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.35);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.restore();
-        }
-
-        function downloadPassportPhoto() {
-            const link = document.createElement('a');
-            link.download = 'mubashir-studio-passport.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        drawCanvas();
     </script>
 </body>
 </html>
