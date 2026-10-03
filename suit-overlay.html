@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Passport Photo & Suit Generator - Mubashir Photo Studio</title>
+    <title>Passport Photo & Suit Editor - Mubashir Photo Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #0f0f11; color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .btn-gold { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #000; font-weight: 600; }
         .btn-gold:hover { background: linear-gradient(135deg, #fde047 0%, #eab308 100%); }
-        .loader { border-top-color: #eab308; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -22,71 +20,65 @@
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">✨ Free AI Auto Suit Generator</span>
+            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">👔 Studio Passport Suit Editor</span>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <div class="lg:col-span-5 space-y-6">
+        <!-- Left Sidebar Controls -->
+        <div class="lg:col-span-5 space-y-5">
             
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> 1. Upload Photo
                 </h2>
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
-                <label for="imageInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg">
-                    <i class="fa-solid fa-image"></i> Select Original Photo
+                <label for="imageInput" class="w-full btn-gold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow text-sm">
+                    <i class="fa-solid fa-image"></i> Upload Original Photo
                 </label>
             </div>
 
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-yellow-500"></i> 2. Passport Background
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-yellow-500"></i> 2. Background Color
                 </h2>
-                <select id="bgSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-yellow-500">
-                    <option value="Pure Blue">Official Blue Background</option>
-                    <option value="Pure White">White Background</option>
-                    <option value="Light Gray">Light Gray Background</option>
-                    <option value="Pure Red">Red Background</option>
-                </select>
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="changeBg('#0055ff')" class="py-2 bg-blue-600 rounded text-xs text-white font-medium hover:opacity-90">Blue</button>
+                    <button onclick="changeBg('#ffffff')" class="py-2 bg-white rounded text-xs text-black font-medium hover:opacity-90">White</button>
+                    <button onclick="changeBg('#e5e7eb')" class="py-2 bg-gray-300 rounded text-xs text-black font-medium hover:opacity-90">Gray</button>
+                    <button onclick="changeBg('#cc0000')" class="py-2 bg-red-600 rounded text-xs text-white font-medium hover:opacity-90">Red</button>
+                </div>
             </div>
 
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-user-tie text-yellow-500"></i> 3. Select Suit Style
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-yellow-500"></i> 3. Adjust Suit Position
                 </h2>
-                <select id="suitSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-yellow-500">
-                    <option value="a three-piece suit with a blue tie">Three-Piece Suit with Blue Tie</option>
-                    <option value="a black formal suit with a red tie and white shirt">Black Suit & Red Tie</option>
-                    <option value="a dark gray executive business suit with tie">Dark Gray Business Suit</option>
-                </select>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="text-zinc-400">Move Up / Down</label>
+                        <input type="range" id="posY" min="-100" max="100" value="0" class="w-full accent-yellow-500" oninput="drawCanvas()">
+                    </div>
+                    <div>
+                        <label class="text-zinc-400">Suit Size (Zoom)</label>
+                        <input type="range" id="scale" min="50" max="150" value="100" class="w-full accent-yellow-500" oninput="drawCanvas()">
+                    </div>
+                </div>
             </div>
 
-            <button id="generateBtn" onclick="generateAISuit()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Passport Photo
+            <button onclick="downloadPassportPhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
+                <i class="fa-solid fa-download"></i> Download Passport Photo
             </button>
 
         </div>
 
+        <!-- Canvas Preview -->
         <div class="lg:col-span-7 flex flex-col items-center justify-center">
-            <div class="w-full max-w-[420px] aspect-[3/4] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-2">
-                <div id="loadingState" class="hidden absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-4">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-zinc-700 h-12 w-12"></div>
-                    <p class="text-sm font-medium text-yellow-500 text-center px-4">AI Processing... Creating Official Suit & Background</p>
-                </div>
-                <img id="previewImg" class="w-full h-full object-cover rounded-lg hidden" alt="Passport Result">
-                <div id="placeholderText" class="text-center p-6 text-zinc-500">
-                    <i class="fa-solid fa-id-badge text-5xl mb-3 text-zinc-700"></i>
-                    <p class="text-sm">Upload photo and click generate to process with AI</p>
-                </div>
+            <div class="bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl p-3 shadow-2xl">
+                <canvas id="passportCanvas" width="413" height="531" class="rounded bg-zinc-950 max-w-full h-auto"></canvas>
             </div>
-
-            <div class="w-full max-w-[420px] mt-4">
-                <a id="downloadBtn" download="passport-ai-photo.jpg" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
-                    <i class="fa-solid fa-download"></i> Download HD Passport Photo
-                </a>
-            </div>
+            <p class="text-xs text-zinc-500 mt-3"><i class="fa-solid fa-circle-info"></i> Standard Passport Size 35mm x 45mm (300 DPI)</p>
         </div>
 
     </main>
@@ -96,58 +88,74 @@
     </footer>
 
     <script>
-        let uploadedImage = false;
+        const canvas = document.getElementById('passportCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let userImg = null;
+        let suitImg = new Image();
+        let bgColor = '#0055ff';
+
+        // High quality transparent Suit PNG
+        suitImg.src = 'https://images.rawpixel.com/image_png_800/2022/10/rawpixel-item-12002345-png.png';
+        suitImg.crossOrigin = 'Anonymous';
+        suitImg.onload = () => drawCanvas();
 
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                uploadedImage = true;
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const preview = document.getElementById('previewImg');
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                    document.getElementById('placeholderText').classList.add('hidden');
+                    userImg = new Image();
+                    userImg.onload = function() {
+                        drawCanvas();
+                    };
+                    userImg.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function generateAISuit() {
-            if (!uploadedImage) {
-                alert("Please select a photo first!");
-                return;
+        function changeBg(color) {
+            bgColor = color;
+            drawCanvas();
+        }
+
+        function drawCanvas() {
+            // Fill background color
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw user image if uploaded
+            if (userImg) {
+                const scale = Math.max(canvas.width / userImg.width, canvas.height / userImg.height);
+                const x = (canvas.width / 2) - (userImg.width / 2) * scale;
+                const y = (canvas.height / 2) - (userImg.height / 2) * scale;
+                ctx.drawImage(userImg, x, y, userImg.width * scale, userImg.height * scale);
             }
 
-            const bgStyle = document.getElementById('bgSelect').value;
-            const suitStyle = document.getElementById('suitSelect').value;
+            // Draw Suit Overlay
+            if (suitImg.complete && suitImg.naturalWidth !== 0) {
+                const offsetY = parseInt(document.getElementById('posY').value);
+                const suitScale = parseInt(document.getElementById('scale').value) / 100;
 
-            const prompt = encodeURIComponent(`Keep the photo in its original state without changing the person's identity or face shape. Transform it into an official passport size photo, 4K resolution. Set background to ${bgStyle}. Dress the person in ${suitStyle}. Face and hairstyle 100% reference authentic official passport size photo.`);
-            
-            const seed = Math.floor(Math.random() * 1000000);
-            const aiImageUrl = `https://pollinations.ai/p/${prompt}?width=600&height=800&seed=${seed}&model=flux&nologo=true`;
+                const suitWidth = canvas.width * 0.95 * suitScale;
+                const suitHeight = (suitImg.height / suitImg.width) * suitWidth;
+                const suitX = (canvas.width - suitWidth) / 2;
+                const suitY = canvas.height - suitHeight + 40 + offsetY;
 
-            document.getElementById('loadingState').classList.remove('hidden');
-
-            const resultImg = new Image();
-            resultImg.onload = function() {
-                const preview = document.getElementById('previewImg');
-                preview.src = aiImageUrl;
-                
-                const downloadBtn = document.getElementById('downloadBtn');
-                downloadBtn.href = aiImageUrl;
-                downloadBtn.classList.remove('hidden');
-
-                document.getElementById('loadingState').classList.add('hidden');
-            };
-
-            resultImg.onerror = function() {
-                alert("Server busy, trying again...");
-                document.getElementById('loadingState').classList.add('hidden');
-            };
-
-            resultImg.src = aiImageUrl;
+                ctx.drawImage(suitImg, suitX, suitY, suitWidth, suitHeight);
+            }
         }
+
+        function downloadPassportPhoto() {
+            const link = document.createElement('a');
+            link.download = 'passport-photo-mubashir-studio.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Initial draw
+        drawCanvas();
     </script>
 </body>
 </html>
