@@ -3,153 +3,407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tie & Suit Overlay - Mubashir Photo Studio</title>
-    <meta name="description" content="Add formal suits, coat, and tie overlay to your passport photo online at Mubashir Photo Studio.">
+    <title>Tie & Suit Overlay Tool - Mubashir Photo Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0f0f11; color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .canvas-container { position: relative; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); background: #18181b; border: 2px dashed #3f3f46; border-radius: 12px; overflow: hidden; }
-        .btn-gold { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #000; font-weight: 600; }
-        .btn-gold:hover { background: linear-gradient(135deg, #fde047 0%, #eab308 100%); }
-        .suit-card { border: 2px solid #27272a; transition: all 0.2s ease; }
-        .suit-card:hover, .suit-card.selected { border-color: #eab308; background-color: #27272a; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0e;
+            color: #f3f4f6;
+            user-select: none;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+            color: #000000;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #fde047 0%, #eab308 100%);
+            box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);
+        }
+
+        .suit-card {
+            border: 2px solid #27272a;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .suit-card:hover {
+            border-color: #eab308;
+            background-color: #18181b;
+        }
+        .suit-card.selected {
+            border-color: #eab308;
+            background-color: #27272a;
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.2);
+        }
+
+        .canvas-box {
+            background-image: linear-gradient(45deg, #18181b 25%, transparent 25%), 
+                              linear-gradient(-45deg, #18181b 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #18181b 75%), 
+                              linear-gradient(-45deg, transparent 75%, #18181b 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0d0e; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-    <header class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur sticky top-0 z-50 py-4 px-6">
+    <header class="border-b border-zinc-800 bg-zinc-900/90 backdrop-blur sticky top-0 z-50 py-3 px-6">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
-                <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
+                <a href="index.html" class="text-zinc-400 hover:text-amber-400 transition p-1 rounded-lg">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </a>
+                <span class="text-lg font-bold tracking-wider text-amber-500">MUBASHIR PHOTO STUDIO</span>
             </div>
-            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">👔 Suit & Tie Overlay Tool</span>
+            <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-user-tie"></i> Studio Suit & Tie Overlay Tool
+            </span>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <div class="lg:col-span-4 space-y-6">
+        <!-- Left Side Control Panel -->
+        <div class="lg:col-span-5 space-y-5 overflow-y-auto max-h-[calc(100vh-100px)] pr-1">
             
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> 1. Upload Photo
+            <!-- 1. Upload Photo -->
+            <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4">
+                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-amber-500"></i> 1. Upload Client Photo
                 </h2>
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
-                <label for="imageInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-yellow-500/10 transition">
-                    <i class="fa-solid fa-image"></i> Select Your Picture
+                <label for="imageInput" class="w-full btn-gold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-md text-sm">
+                    <i class="fa-solid fa-image"></i> Choose Picture from Computer
                 </label>
             </div>
 
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-yellow-500"></i> 2. Passport Background
+            <!-- 2. Studio Background Preset -->
+            <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4">
+                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-amber-500"></i> 2. Passport Background Color
                 </h2>
                 <div class="grid grid-cols-4 gap-2">
-                    <button onclick="changeBg('#ffffff')" class="h-10 rounded border border-zinc-700 bg-white" title="White"></button>
-                    <button onclick="changeBg('#0055ff')" class="h-10 rounded border border-zinc-700 bg-blue-600" title="Official Blue"></button>
-                    <button onclick="changeBg('#a1a1aa')" class="h-10 rounded border border-zinc-700 bg-zinc-400" title="Light Gray"></button>
-                    <button onclick="changeBg('#dc2626')" class="h-10 rounded border border-zinc-700 bg-red-600" title="Red"></button>
+                    <button onclick="setBgColor('#0055ff')" class="h-10 rounded-lg border-2 border-zinc-700 bg-[#0055ff] hover:scale-105 transition flex items-center justify-center text-xs font-medium text-white shadow-sm" title="Official Blue">Blue</button>
+                    <button onclick="setBgColor('#ffffff')" class="h-10 rounded-lg border-2 border-zinc-700 bg-white hover:scale-105 transition flex items-center justify-center text-xs font-medium text-black shadow-sm" title="Passport White">White</button>
+                    <button onclick="setBgColor('#a1a1aa')" class="h-10 rounded-lg border-2 border-zinc-700 bg-zinc-400 hover:scale-105 transition flex items-center justify-center text-xs font-medium text-black shadow-sm" title="Light Gray">Gray</button>
+                    <button onclick="setBgColor('#dc2626')" class="h-10 rounded-lg border-2 border-zinc-700 bg-red-600 hover:scale-105 transition flex items-center justify-center text-xs font-medium text-white shadow-sm" title="Red">Red</button>
                 </div>
             </div>
 
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-user-tie text-yellow-500"></i> 3. Select Suit Style
+            <!-- 3. Suit Templates Selection -->
+            <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4">
+                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-shirt text-amber-500"></i> 3. Select Suit / Coat Style
                 </h2>
-                <div class="grid grid-cols-2 gap-3" id="suitGrid"></div>
+                <div class="grid grid-cols-3 gap-2.5" id="suitListContainer">
+                    <!-- Dynamic Suit Options Loaded Here -->
+                </div>
             </div>
 
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
-                <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-yellow-500"></i> 4. Fine Adjustments
-                </h2>
-                <div>
-                    <label class="text-xs text-zinc-400 flex justify-between">Suit Size <span id="scaleVal">100%</span></label>
-                    <input type="range" id="scaleRange" min="0.3" max="2.5" step="0.01" value="1" class="w-full accent-yellow-500">
+            <!-- 4. Interactive Fine Adjustments -->
+            <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4 space-y-3.5">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-500"></i> 4. Precision Fit Controls
+                    </h2>
+                    <button onclick="resetSuitPosition()" class="text-[11px] text-amber-400 hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Alignment
+                    </button>
                 </div>
+
                 <div>
-                    <label class="text-xs text-zinc-400 flex justify-between">Up / Down Position <span id="posYVal">0px</span></label>
-                    <input type="range" id="posYRange" min="-300" max="300" step="1" value="0" class="w-full accent-yellow-500">
+                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
+                        <span>Overall Size</span>
+                        <span id="scaleVal" class="text-amber-400 font-mono">100%</span>
+                    </div>
+                    <input type="range" id="scaleRange" min="0.3" max="2.5" step="0.01" value="1" class="w-full accent-amber-500 cursor-pointer">
                 </div>
+
                 <div>
-                    <label class="text-xs text-zinc-400 flex justify-between">Left / Right Position <span id="posXVal">0px</span></label>
-                    <input type="range" id="posXRange" min="-300" max="300" step="1" value="0" class="w-full accent-yellow-500">
+                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
+                        <span>Shoulder / Aspect Width</span>
+                        <span id="widthVal" class="text-amber-400 font-mono">100%</span>
+                    </div>
+                    <input type="range" id="widthRange" min="0.5" max="2.0" step="0.01" value="1" class="w-full accent-amber-500 cursor-pointer">
                 </div>
+
                 <div>
-                    <label class="text-xs text-zinc-400 flex justify-between">Rotation <span id="rotVal">0°</span></label>
-                    <input type="range" id="rotRange" min="-30" max="30" step="1" value="0" class="w-full accent-yellow-500">
+                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
+                        <span>Vertical Position (Up / Down)</span>
+                        <span id="posYVal" class="text-amber-400 font-mono">0px</span>
+                    </div>
+                    <input type="range" id="posYRange" min="-300" max="300" step="1" value="0" class="w-full accent-amber-500 cursor-pointer">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
+                        <span>Horizontal Position (Left / Right)</span>
+                        <span id="posXVal" class="text-amber-400 font-mono">0px</span>
+                    </div>
+                    <input type="range" id="posXRange" min="-300" max="300" step="1" value="0" class="w-full accent-amber-500 cursor-pointer">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
+                        <span>Rotation Angle</span>
+                        <span id="rotVal" class="text-amber-400 font-mono">0°</span>
+                    </div>
+                    <input type="range" id="rotRange" min="-30" max="30" step="1" value="0" class="w-full accent-amber-500 cursor-pointer">
                 </div>
             </div>
 
         </div>
 
-        <div class="lg:col-span-8 flex flex-col items-center justify-center">
-            <div class="canvas-container w-full max-w-[450px] aspect-[3/4] flex items-center justify-center relative">
-                <canvas id="photoCanvas" class="w-full h-full object-contain"></canvas>
+        <!-- Right Side Live Canvas Workbench -->
+        <div class="lg:col-span-7 flex flex-col items-center justify-center">
+            
+            <div class="relative w-full max-w-[440px]">
+                <div class="text-xs text-zinc-400 mb-2 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-hand-pointer text-amber-500"></i> Click & Drag suit overlay directly on canvas</span>
+                    <span class="bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded text-[10px]">35mm x 45mm Ratio</span>
+                </div>
+
+                <div id="canvasWrapper" class="canvas-box w-full aspect-[3/4] border-2 border-zinc-700 rounded-xl overflow-hidden relative shadow-2xl cursor-grab active:cursor-grabbing">
+                    <canvas id="studioCanvas" class="w-full h-full block"></canvas>
+                </div>
             </div>
-            <div class="w-full max-w-[450px] mt-6">
-                <button onclick="downloadImage()" class="w-full btn-gold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl">
-                    <i class="fa-solid fa-download"></i> Download Passport Photo
+
+            <!-- Download Button -->
+            <div class="w-full max-w-[440px] mt-5">
+                <button onclick="downloadPassportPhoto()" class="w-full btn-gold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl">
+                    <i class="fa-solid fa-download text-lg"></i> Download High-Resolution Photo
                 </button>
             </div>
+
         </div>
 
     </main>
 
-    <footer class="border-t border-zinc-800 py-4 text-center text-xs text-zinc-500">
+    <footer class="border-t border-zinc-800 py-3 text-center text-xs text-zinc-500">
         © 2026 Mubashir Creative Hub & Photo Studio. All Rights Reserved.
     </footer>
 
     <script>
-        const canvas = document.getElementById('photoCanvas');
+        const canvas = document.getElementById('studioCanvas');
         const ctx = canvas.getContext('2d');
+        const canvasWrapper = document.getElementById('canvasWrapper');
 
-        let userImg = null;
+        // Set High Definition Canvas Dimensions (Standard Passport 3:4 aspect)
+        canvas.width = 900;
+        canvas.height = 1200;
+
+        // Core Image State
+        let userPhoto = null;
         let suitImg = new Image();
         let bgColor = '#0055ff';
 
-        let suitState = { scale: 1, x: 0, y: 120, rotation: 0 };
+        // Suit Overlay Properties
+        let suitTransform = {
+            x: 0,
+            y: 280,
+            scale: 1.0,
+            aspectWidth: 1.0,
+            rotation: 0
+        };
 
-        canvas.width = 600;
-        canvas.height = 800;
+        // Interactive Drag Variables
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let initialSuitX = 0;
+        let initialSuitY = 0;
 
-        // HD Real PNG Suit URLs
-        const suits = [
-            {
-                name: "Black Suit & Red Tie",
-                url: "https://pngimg.com/uploads/suit/suit_PNG8123.png"
-            },
-            {
-                name: "Navy Blue Suit",
-                url: "https://pngimg.com/uploads/suit/suit_PNG8128.png"
-            },
-            {
-                name: "Classic Black Tuxedo",
-                url: "https://pngimg.com/uploads/suit/suit_PNG8135.png"
+        // Clean Cut PNG Studio Suits (Generated HD Canvas SVG Data URIs for guaranteed rendering)
+        function createStudioSuitDataURI(type) {
+            const svgCanvas = document.createElement('canvas');
+            svgCanvas.width = 800;
+            svgCanvas.height = 800;
+            const sCtx = svgCanvas.getContext('2d');
+
+            // Draw Clean Professional PNG Suit Vector Patterns
+            sCtx.clearRect(0, 0, 800, 800);
+
+            if (type === 'classic_black') {
+                // Shoulders / Jacket
+                sCtx.fillStyle = "#111113";
+                sCtx.beginPath();
+                sCtx.moveTo(150, 800);
+                sCtx.lineTo(200, 320);
+                sCtx.quadraticCurveTo(270, 240, 400, 240);
+                sCtx.quadraticCurveTo(530, 240, 600, 320);
+                sCtx.lineTo(650, 800);
+                sCtx.fill();
+
+                // Shirt Collar V-Shape
+                sCtx.fillStyle = "#ffffff";
+                sCtx.beginPath();
+                sCtx.moveTo(330, 240);
+                sCtx.lineTo(400, 480);
+                sCtx.lineTo(470, 240);
+                sCtx.fill();
+
+                // Red Tie
+                sCtx.fillStyle = "#b91c1c";
+                sCtx.beginPath();
+                sCtx.moveTo(385, 270);
+                sCtx.lineTo(415, 270);
+                sCtx.lineTo(420, 300);
+                sCtx.lineTo(400, 560);
+                sCtx.lineTo(380, 300);
+                sCtx.fill();
+
+                // Coat Lapels
+                sCtx.fillStyle = "#1f1f23";
+                sCtx.beginPath();
+                sCtx.moveTo(200, 320);
+                sCtx.lineTo(330, 490);
+                sCtx.lineTo(310, 250);
+                sCtx.fill();
+
+                sCtx.beginPath();
+                sCtx.moveTo(600, 320);
+                sCtx.lineTo(470, 490);
+                sCtx.lineTo(490, 250);
+                sCtx.fill();
+
+            } else if (type === 'navy_official') {
+                // Navy Coat
+                sCtx.fillStyle = "#0f172a";
+                sCtx.beginPath();
+                sCtx.moveTo(140, 800);
+                sCtx.lineTo(190, 310);
+                sCtx.quadraticCurveTo(260, 230, 400, 230);
+                sCtx.quadraticCurveTo(540, 230, 610, 310);
+                sCtx.lineTo(660, 800);
+                sCtx.fill();
+
+                // Shirt V-Opening
+                sCtx.fillStyle = "#f8fafc";
+                sCtx.beginPath();
+                sCtx.moveTo(325, 230);
+                sCtx.lineTo(400, 490);
+                sCtx.lineTo(475, 230);
+                sCtx.fill();
+
+                // Dark Blue Striped Tie
+                sCtx.fillStyle = "#1e3a8a";
+                sCtx.beginPath();
+                sCtx.moveTo(385, 260);
+                sCtx.lineTo(415, 260);
+                sCtx.lineTo(422, 550);
+                sCtx.lineTo(400, 580);
+                sCtx.lineTo(378, 550);
+                sCtx.fill();
+
+                // Lapels
+                sCtx.fillStyle = "#1e293b";
+                sCtx.beginPath();
+                sCtx.moveTo(190, 310);
+                sCtx.lineTo(320, 510);
+                sCtx.lineTo(305, 240);
+                sCtx.fill();
+
+                sCtx.beginPath();
+                sCtx.moveTo(610, 310);
+                sCtx.lineTo(480, 510);
+                sCtx.lineTo(495, 240);
+                sCtx.fill();
+
+            } else if (type === 'executive_gray') {
+                // Charcoal Suit
+                sCtx.fillStyle = "#27272a";
+                sCtx.beginPath();
+                sCtx.moveTo(150, 800);
+                sCtx.lineTo(200, 320);
+                sCtx.quadraticCurveTo(270, 240, 400, 240);
+                sCtx.quadraticCurveTo(530, 240, 600, 320);
+                sCtx.lineTo(650, 800);
+                sCtx.fill();
+
+                // White Shirt
+                sCtx.fillStyle = "#ffffff";
+                sCtx.beginPath();
+                sCtx.moveTo(330, 240);
+                sCtx.lineTo(400, 470);
+                sCtx.lineTo(470, 240);
+                sCtx.fill();
+
+                // Black Tie
+                sCtx.fillStyle = "#09090b";
+                sCtx.beginPath();
+                sCtx.moveTo(385, 270);
+                sCtx.lineTo(415, 270);
+                sCtx.lineTo(420, 540);
+                sCtx.lineTo(400, 570);
+                sCtx.lineTo(380, 540);
+                sCtx.fill();
+
+                // Lapels
+                sCtx.fillStyle = "#3f3f46";
+                sCtx.beginPath();
+                sCtx.moveTo(200, 320);
+                sCtx.lineTo(330, 490);
+                sCtx.lineTo(310, 250);
+                sCtx.fill();
+
+                sCtx.beginPath();
+                sCtx.moveTo(600, 320);
+                sCtx.lineTo(470, 490);
+                sCtx.lineTo(490, 250);
+                sCtx.fill();
             }
+
+            return svgCanvas.toDataURL('image/png');
+        }
+
+        const suitsCatalog = [
+            { id: 'classic_black', name: 'Classic Black & Red Tie', url: createStudioSuitDataURI('classic_black') },
+            { id: 'navy_official', name: 'Official Navy & Blue Tie', url: createStudioSuitDataURI('navy_official') },
+            { id: 'executive_gray', name: 'Executive Charcoal Suit', url: createStudioSuitDataURI('executive_gray') }
         ];
 
-        const suitGrid = document.getElementById('suitGrid');
-        suits.forEach((suit, index) => {
-            const card = document.createElement('div');
-            card.className = `suit-card p-2 rounded-lg cursor-pointer flex flex-col items-center bg-zinc-800 ${index===0?'selected':''}`;
-            card.innerHTML = `<img src="${suit.url}" class="h-20 object-contain mb-1"><span class="text-[10px] text-zinc-300 text-center font-medium">${suit.name}</span>`;
-            card.onclick = () => {
-                document.querySelectorAll('.suit-card').forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                loadSuit(suit.url);
-            };
-            suitGrid.appendChild(card);
-        });
+        function initSuitCatalog() {
+            const container = document.getElementById('suitListContainer');
+            container.innerHTML = '';
 
-        loadSuit(suits[0].url);
+            suitsCatalog.forEach((suit, index) => {
+                const card = document.createElement('div');
+                card.className = `suit-card p-2 rounded-xl cursor-pointer flex flex-col items-center bg-zinc-800/80 ${index === 0 ? 'selected' : ''}`;
+                card.onclick = () => selectSuit(index, card);
 
-        function loadSuit(url) {
+                card.innerHTML = `
+                    <div class="h-24 w-full flex items-center justify-center overflow-hidden mb-1">
+                        <img src="${suit.url}" class="h-full object-contain">
+                    </div>
+                    <span class="text-[10px] text-zinc-300 font-medium text-center line-clamp-1">${suit.name}</span>
+                `;
+                container.appendChild(card);
+            });
+
+            loadSuitImage(suitsCatalog[0].url);
+        }
+
+        function selectSuit(index, element) {
+            document.querySelectorAll('.suit-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            loadSuitImage(suitsCatalog[index].url);
+        }
+
+        function loadSuitImage(url) {
             suitImg = new Image();
-            suitImg.crossOrigin = "Anonymous";
-            suitImg.onload = renderCanvas;
+            suitImg.onload = renderStudioCanvas;
             suitImg.src = url;
         }
 
@@ -158,78 +412,173 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    userImg = new Image();
-                    userImg.onload = renderCanvas;
-                    userImg.src = event.target.result;
+                    userPhoto = new Image();
+                    userPhoto.onload = () => {
+                        resetSuitPosition();
+                        renderStudioCanvas();
+                    };
+                    userPhoto.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function changeBg(color) {
+        function setBgColor(color) {
             bgColor = color;
-            renderCanvas();
+            renderStudioCanvas();
         }
 
-        function renderCanvas() {
+        function renderStudioCanvas() {
+            // Clear & Draw Background
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if (userImg) {
-                const scale = Math.max(canvas.width / userImg.width, canvas.height / userImg.height);
-                const x = (canvas.width / 2) - (userImg.width / 2) * scale;
-                const y = (canvas.height / 2) - (userImg.height / 2) * scale;
-                ctx.drawImage(userImg, x, y, userImg.width * scale, userImg.height * scale);
+            // Draw User Photo
+            if (userPhoto) {
+                const scale = Math.max(canvas.width / userPhoto.width, canvas.height / userPhoto.height);
+                const x = (canvas.width / 2) - (userPhoto.width / 2) * scale;
+                const y = (canvas.height / 2) - (userPhoto.height / 2) * scale;
+                ctx.drawImage(userPhoto, x, y, userPhoto.width * scale, userPhoto.height * scale);
             } else {
-                ctx.fillStyle = "#a1a1aa";
-                ctx.font = "20px Segoe UI";
+                // Placeholder Guide Text
+                ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+                ctx.font = "bold 28px Inter, sans-serif";
                 ctx.textAlign = "center";
-                ctx.fillText("Please Upload Your Photo", canvas.width / 2, canvas.height / 2);
+                ctx.fillText("Upload Photo to Start", canvas.width / 2, canvas.height / 2 - 20);
+                ctx.font = "20px Inter, sans-serif";
+                ctx.fillText("Passport Photo Studio Mode", canvas.width / 2, canvas.height / 2 + 20);
             }
 
+            // Draw Transparent Suit Overlay
             if (suitImg.complete && suitImg.naturalWidth !== 0) {
                 ctx.save();
-                ctx.translate(canvas.width / 2 + suitState.x, canvas.height / 2 + suitState.y);
-                ctx.rotate((suitState.rotation * Math.PI) / 180);
-                const sWidth = 450 * suitState.scale;
-                const sHeight = (suitImg.height / suitImg.width) * sWidth;
-                ctx.drawImage(suitImg, -sWidth / 2, -sHeight / 2, sWidth, sHeight);
+                ctx.translate(canvas.width / 2 + suitTransform.x, canvas.height / 2 + suitTransform.y);
+                ctx.rotate((suitTransform.rotation * Math.PI) / 180);
+                
+                const baseWidth = 720 * suitTransform.scale * suitTransform.aspectWidth;
+                const baseHeight = 720 * suitTransform.scale;
+                
+                ctx.drawImage(suitImg, -baseWidth / 2, -baseHeight / 2, baseWidth, baseHeight);
                 ctx.restore();
             }
         }
 
+        function getCanvasCoordinates(e) {
+            const rect = canvasWrapper.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function startDrag(e) {
+            isDragging = true;
+            const coords = getCanvasCoordinates(e);
+            dragStartX = coords.x;
+            dragStartY = coords.y;
+            initialSuitX = suitTransform.x;
+            initialSuitY = suitTransform.y;
+        }
+
+        function doDrag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const coords = getCanvasCoordinates(e);
+            const deltaX = coords.x - dragStartX;
+            const deltaY = coords.y - dragStartY;
+
+            suitTransform.x = initialSuitX + deltaX;
+            suitTransform.y = initialSuitY + deltaY;
+
+            // Sync UI Sliders
+            document.getElementById('posXRange').value = suitTransform.x;
+            document.getElementById('posXVal').innerText = Math.round(suitTransform.x) + 'px';
+            document.getElementById('posYRange').value = suitTransform.y;
+            document.getElementById('posYVal').innerText = Math.round(suitTransform.y) + 'px';
+
+            renderStudioCanvas();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+        }
+
+        // Attach Mouse & Touch Listeners to Canvas Wrapper
+        canvasWrapper.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', doDrag);
+        window.addEventListener('mouseup', stopDrag);
+
+        canvasWrapper.addEventListener('touchstart', startDrag, { passive: false });
+        window.addEventListener('touchmove', doDrag, { passive: false });
+        window.addEventListener('touchend', stopDrag);
+
         document.getElementById('scaleRange').oninput = (e) => {
-            suitState.scale = parseFloat(e.target.value);
-            document.getElementById('scaleVal').innerText = Math.round(suitState.scale * 100) + '%';
-            renderCanvas();
+            suitTransform.scale = parseFloat(e.target.value);
+            document.getElementById('scaleVal').innerText = Math.round(suitTransform.scale * 100) + '%';
+            renderStudioCanvas();
+        };
+
+        document.getElementById('widthRange').oninput = (e) => {
+            suitTransform.aspectWidth = parseFloat(e.target.value);
+            document.getElementById('widthVal').innerText = Math.round(suitTransform.aspectWidth * 100) + '%';
+            renderStudioCanvas();
         };
 
         document.getElementById('posYRange').oninput = (e) => {
-            suitState.y = parseInt(e.target.value);
-            document.getElementById('posYVal').innerText = suitState.y + 'px';
-            renderCanvas();
+            suitTransform.y = parseInt(e.target.value);
+            document.getElementById('posYVal').innerText = suitTransform.y + 'px';
+            renderStudioCanvas();
         };
 
         document.getElementById('posXRange').oninput = (e) => {
-            suitState.x = parseInt(e.target.value);
-            document.getElementById('posXVal').innerText = suitState.x + 'px';
-            renderCanvas();
+            suitTransform.x = parseInt(e.target.value);
+            document.getElementById('posXVal').innerText = suitTransform.x + 'px';
+            renderStudioCanvas();
         };
 
         document.getElementById('rotRange').oninput = (e) => {
-            suitState.rotation = parseInt(e.target.value);
-            document.getElementById('rotVal').innerText = suitState.rotation + '°';
-            renderCanvas();
+            suitTransform.rotation = parseInt(e.target.value);
+            document.getElementById('rotVal').innerText = suitTransform.rotation + '°';
+            renderStudioCanvas();
         };
 
-        function downloadImage() {
+        function resetSuitPosition() {
+            suitTransform = { x: 0, y: 280, scale: 1.0, aspectWidth: 1.0, rotation: 0 };
+            document.getElementById('scaleRange').value = 1.0;
+            document.getElementById('scaleVal').innerText = '100%';
+            document.getElementById('widthRange').value = 1.0;
+            document.getElementById('widthVal').innerText = '100%';
+            document.getElementById('posYRange').value = 280;
+            document.getElementById('posYVal').innerText = '280px';
+            document.getElementById('posXRange').value = 0;
+            document.getElementById('posXVal').innerText = '0px';
+            document.getElementById('rotRange').value = 0;
+            document.getElementById('rotVal').innerText = '0°';
+            renderStudioCanvas();
+        }
+
+        function downloadPassportPhoto() {
+            if (!userPhoto) {
+                alert("Please upload a photo first before downloading.");
+                return;
+            }
             const link = document.createElement('a');
-            link.download = 'passport-suit-photo.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.download = 'passport-suit-photo-mubashir-studio.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.98);
             link.click();
         }
 
-        renderCanvas();
+        // Initialize on Load
+        window.onload = () => {
+            initSuitCatalog();
+            renderStudioCanvas();
+        };
     </script>
 </body>
 </html>
