@@ -20,7 +20,7 @@
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">👔 Local Suit Fit (ID Safe)</span>
+            <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">👔 Passport Suit Studio</span>
         </div>
     </header>
 
@@ -34,7 +34,7 @@
                 </h2>
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
                 <label for="imageInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg">
-                    <i class="fa-solid fa-image"></i> Upload Reference Photo
+                    <i class="fa-solid fa-image"></i> Select Original Photo
                 </label>
             </div>
 
@@ -43,7 +43,22 @@
                     <i class="fa-solid fa-user-tie text-yellow-500"></i> 2. Select Suit Style
                 </h2>
                 <div class="grid grid-cols-2 gap-3" id="suitGrid">
-                    <!-- Suits will be added by JS -->
+                    <div id="suit-0" onclick="selectSuit(0)" class="border-2 border-yellow-500 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
+                        <i class="fa-solid fa-user-tie text-3xl text-yellow-500 mb-1"></i>
+                        <div class="text-xs font-semibold text-white">Black Suit & Red Tie</div>
+                    </div>
+                    <div id="suit-1" onclick="selectSuit(1)" class="border-2 border-zinc-700 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
+                        <i class="fa-solid fa-user-tie text-3xl text-blue-500 mb-1"></i>
+                        <div class="text-xs font-semibold text-white">Navy Blue Suit</div>
+                    </div>
+                    <div id="suit-2" onclick="selectSuit(2)" class="border-2 border-zinc-700 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
+                        <i class="fa-solid fa-user-tie text-3xl text-gray-400 mb-1"></i>
+                        <div class="text-xs font-semibold text-white">Dark Gray Suit</div>
+                    </div>
+                    <div id="suit-3" onclick="selectSuit(3)" class="border-2 border-zinc-700 bg-zinc-800 p-3 rounded-lg cursor-pointer text-center">
+                        <i class="fa-solid fa-user-tie text-3xl text-zinc-300 mb-1"></i>
+                        <div class="text-xs font-semibold text-white">Classic Black Coat</div>
+                    </div>
                 </div>
             </div>
 
@@ -52,31 +67,31 @@
                     <i class="fa-solid fa-palette text-yellow-500"></i> 3. Background Color
                 </h2>
                 <div class="grid grid-cols-4 gap-2">
-                    <button onclick="changeBg('#ffffff')" class="p-4 border-2 border-zinc-700 bg-white rounded"></button>
-                    <button onclick="changeBg('#0055ff')" class="p-4 border-2 border-zinc-700 bg-blue-600 rounded"></button>
-                    <button onclick="changeBg('#a1a1aa')" class="p-4 border-2 border-zinc-700 bg-zinc-400 rounded"></button>
-                    <button onclick="changeBg('#dc2626')" class="p-4 border-2 border-zinc-700 bg-red-600 rounded"></button>
+                    <button onclick="changeBg('#ffffff')" class="p-3 border-2 border-zinc-700 bg-white rounded text-black text-xs font-bold">White</button>
+                    <button onclick="changeBg('#0055ff')" class="p-3 border-2 border-zinc-700 bg-blue-600 rounded text-white text-xs font-bold">Blue</button>
+                    <button onclick="changeBg('#a1a1aa')" class="p-3 border-2 border-zinc-700 bg-zinc-400 rounded text-black text-xs font-bold">Gray</button>
+                    <button onclick="changeBg('#dc2626')" class="p-3 border-2 border-zinc-700 bg-red-600 rounded text-white text-xs font-bold">Red</button>
                 </div>
             </div>
 
             <button onclick="downloadPassportPhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Finalize ID Safe Passport Photo
+                <i class="fa-solid fa-download"></i> Download HD Passport Photo
             </button>
 
         </div>
 
         <div class="lg:col-span-7 flex flex-col items-center justify-center">
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 shadow-2xl relative">
-                <canvas id="studioCanvas" width="413" height="531" class="rounded max-w-full h-auto cursor-pointer" title="Use controls above"></canvas>
+                <canvas id="studioCanvas" width="413" height="531" class="rounded max-w-full h-auto cursor-pointer"></canvas>
             </div>
             <div class="max-w-[413px] w-full mt-4 space-y-3">
                 <div class="flex items-center gap-3">
                     <label class="text-xs text-zinc-400">Position Up/Down</label>
-                    <input type="range" id="posYSlider" min="-100" max="100" value="0" class="flex-grow accent-yellow-500" oninput="drawCanvas()">
+                    <input type="range" id="posYSlider" min="-150" max="150" value="0" class="flex-grow accent-yellow-500" oninput="drawCanvas()">
                 </div>
                 <div class="flex items-center gap-3">
                     <label class="text-xs text-zinc-400">Suit Size</label>
-                    <input type="range" id="scaleSlider" min="50" max="150" value="100" class="flex-grow accent-yellow-500" oninput="drawCanvas()">
+                    <input type="range" id="scaleSlider" min="50" max="180" value="100" class="flex-grow accent-yellow-500" oninput="drawCanvas()">
                 </div>
             </div>
         </div>
@@ -94,37 +109,29 @@
         const scaleSlider = document.getElementById('scaleSlider');
 
         let userImg = null;
-        let suitImg = new Image();
-        suitImg.crossOrigin = 'Anonymous';
+        let selectedSuitIndex = 0;
         let bgColor = '#ffffff';
 
-        // High Quality PNG transparent suits (Studio Grade)
-        const suits = [
-            { name: 'Black Suit & Red Tie', url: 'https://images.rawpixel.com/image_png_800/2022/10/rawpixel-item-12002345-png.png' },
-            { name: 'Navy Blue Suit', url: 'https://images.rawpixel.com/image_png_800/2022/10/rawpixel-item-12002342-png.png' },
-            { name: 'Formal Gray Vest', url: 'https://images.rawpixel.com/image_png_800/2022/10/rawpixel-item-12002334-png.png' },
-            { name: 'Executive Tuxedo', url: 'https://images.rawpixel.com/image_png_800/2022/10/rawpixel-item-12002324-png.png' }
+        // High Quality Built-in Vectors/Images
+        const suitConfigs = [
+            { coatColor: '#1a1a1a', tieColor: '#dc2626', shirtColor: '#ffffff' }, // Black & Red
+            { coatColor: '#0f2b5c', tieColor: '#1d4ed8', shirtColor: '#ffffff' }, // Navy Blue
+            { coatColor: '#374151', tieColor: '#111827', shirtColor: '#ffffff' }, // Dark Gray
+            { coatColor: '#000000', tieColor: '#000000', shirtColor: '#ffffff' }  // Classic Black
         ];
 
-        // Load Suit Grid
-        const suitGrid = document.getElementById('suitGrid');
-        suits.forEach((suit, index) => {
-            const card = document.createElement('div');
-            card.className = `border-2 border-zinc-700 bg-zinc-800 p-2 rounded-lg cursor-pointer text-center ${index===0 ? 'border-yellow-500' : ''}`;
-            card.id = `suit-${index}`;
-            card.innerHTML = `<img src="${suit.url}" class="h-16 object-contain mx-auto mb-1"><span class="text-[10px] text-zinc-400 font-medium">${suit.name}</span>`;
-            card.onclick = () => selectSuit(index);
-            suitGrid.appendChild(card);
-        });
-
-        // Load Default Suit
-        suitImg.onload = () => drawCanvas();
-        suitImg.src = suits[0].url;
-
         function selectSuit(index) {
-            document.querySelectorAll('#suitGrid > div').forEach(d => d.classList.remove('border-yellow-500'));
-            document.getElementById(`suit-${index}`).classList.add('border-yellow-500');
-            suitImg.src = suits[index].url;
+            selectedSuitIndex = index;
+            document.querySelectorAll('#suitGrid > div').forEach((d, i) => {
+                if(i === index) {
+                    d.classList.add('border-yellow-500');
+                    d.classList.remove('border-zinc-700');
+                } else {
+                    d.classList.remove('border-yellow-500');
+                    d.classList.add('border-zinc-700');
+                }
+            });
+            drawCanvas();
         }
 
         document.getElementById('imageInput').addEventListener('change', function(e) {
@@ -150,7 +157,7 @@
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw user photo
+            // Draw User Photo
             if (userImg) {
                 const scale = Math.max(canvas.width / userImg.width, canvas.height / userImg.height);
                 const x = (canvas.width / 2) - (userImg.width / 2) * scale;
@@ -158,24 +165,80 @@
                 ctx.drawImage(userImg, x, y, userImg.width * scale, userImg.height * scale);
             }
 
-            // Draw transparent suit
-            if (suitImg.complete && suitImg.naturalWidth !== 0) {
-                const sliderY = parseInt(posYSlider.value);
-                const sliderScale = parseInt(scaleSlider.value) / 100;
+            // Render Vector Studio Suit Overlay
+            drawVectorSuit();
+        }
 
-                const suitW = canvas.width * 0.95 * sliderScale;
-                const suitH = (suitImg.height / suitImg.width) * suitW;
-                const suitX = (canvas.width - suitW) / 2;
-                const suitY = (canvas.height - suitH) + 40 + sliderY; // Neckline anchoring
+        function drawVectorSuit() {
+            const config = suitConfigs[selectedSuitIndex];
+            const sliderY = parseInt(posYSlider.value);
+            const scale = parseInt(scaleSlider.value) / 100;
 
-                ctx.drawImage(suitImg, suitX, suitY, suitW, suitH);
-            }
+            const baseW = canvas.width * 1.1 * scale;
+            const baseH = 260 * scale;
+            const startX = (canvas.width - baseW) / 2;
+            const startY = canvas.height - baseH + 30 + sliderY;
+
+            ctx.save();
+
+            // Shoulders & Suit Coat
+            ctx.fillStyle = config.coatColor;
+            ctx.beginPath();
+            ctx.moveTo(startX, canvas.height);
+            ctx.lineTo(startX + baseW * 0.15, startY + baseH * 0.2);
+            ctx.lineTo(startX + baseW * 0.35, startY);
+            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.35); // V Neckline
+            ctx.lineTo(startX + baseW * 0.65, startY);
+            ctx.lineTo(startX + baseW * 0.85, startY + baseH * 0.2);
+            ctx.lineTo(startX + baseW, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Shirt Collar Inner
+            ctx.fillStyle = config.shirtColor;
+            ctx.beginPath();
+            ctx.moveTo(startX + baseW * 0.35, startY);
+            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.32);
+            ctx.lineTo(startX + baseW * 0.65, startY);
+            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.12);
+            ctx.closePath();
+            ctx.fill();
+
+            // Tie
+            ctx.fillStyle = config.tieColor;
+            ctx.beginPath();
+            ctx.moveTo(startX + baseW * 0.47, startY + baseH * 0.12);
+            ctx.lineTo(startX + baseW * 0.53, startY + baseH * 0.12);
+            ctx.lineTo(startX + baseW * 0.54, startY + baseH * 0.35);
+            ctx.lineTo(startX + baseW * 0.50, startY + baseH * 0.70);
+            ctx.lineTo(startX + baseW * 0.46, startY + baseH * 0.35);
+            ctx.closePath();
+            ctx.fill();
+
+            // Lapels (Coat Flaps)
+            ctx.fillStyle = '#000000';
+            ctx.globalAlpha = 0.25;
+            ctx.beginPath();
+            ctx.moveTo(startX + baseW * 0.35, startY);
+            ctx.lineTo(startX + baseW * 0.28, startY + baseH * 0.25);
+            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.35);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(startX + baseW * 0.65, startY);
+            ctx.lineTo(startX + baseW * 0.72, startY + baseH * 0.25);
+            ctx.lineTo(startX + baseW * 0.5, startY + baseH * 0.35);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
         }
 
         function downloadPassportPhoto() {
             const link = document.createElement('a');
-            link.download = 'mubashir-studio-id-safe.png';
-            link.href = canvas.toDataURL();
+            link.download = 'mubashir-studio-passport.png';
+            link.href = canvas.toDataURL('image/png');
             link.click();
         }
 
