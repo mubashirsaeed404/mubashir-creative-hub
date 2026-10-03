@@ -35,8 +35,8 @@
                 <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider mb-1 flex items-center gap-2">
                     <i class="fa-solid fa-key"></i> Google Gemini API Key
                 </h2>
-                <p class="text-xs text-zinc-400 mb-3">Google AI Studio ki API Key yahan paste karein (AIzaSy...)</p>
-                <input type="password" id="apiKeyInput" placeholder="AIzaSy***********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
+                <p class="text-xs text-zinc-400 mb-3">Paste your API key (AQ.Ab8RN6...)</p>
+                <input type="password" id="apiKeyInput" placeholder="AQ.Ab8RN6***********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
             </div>
 
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
@@ -124,13 +124,15 @@
 
             const customPrompt = "Keep the uploaded photo exactly in its original state without changing the person’s identity or face shape. Transform it into a passport size photo with dimensions of 35mm width × 45mm height, 4K resolution. Set the background to Pure Blue. Dress the person in a three-piece suit with a blue tie. Adjust the hairstyle to suit the face. The final photo must look authentic, realistic, and official passport size. Face and hairstyle 100% Reference. dont change face and hair style.";
 
-            // Updated Model to official image generation endpoint
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch(`${apiUrl}?key=${apiKey}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': apiKey
+                    },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
@@ -142,17 +144,14 @@
                                     }
                                 }
                             ]
-                        }],
-                        generationConfig: {
-                            responseModalities: ["TEXT", "IMAGE"]
-                        }
+                        }]
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.error) {
-                    alert("Gemini API Error: " + data.error.message);
+                    alert("Gemini Error: " + data.error.message + "\n\nTip: Agar AQ key par Quota limit bol raha hai, to dusri Google Account se aistudio.google.com se nayi Key generate kar lein.");
                     document.getElementById('loadingState').classList.add('hidden');
                     return;
                 }
@@ -180,14 +179,14 @@
                     }
 
                     if (!imgFound) {
-                        alert("Response mil gaya hai. Aapki API key Google AI Studio (aistudio.google.com) se Image Modality enabled honi chahiye.");
+                        alert("Response aa gaya hai. Image output ke liye account status active hone chahiye.");
                     }
                 } else {
-                    alert("Response decode nahi ho saka. Dobara try karein.");
+                    alert("Response receive nahi hua.");
                 }
 
             } catch (err) {
-                alert("Network Error: Key aur Internet connection verify karein.");
+                alert("Network Error: API key aur connection verify karein.");
             } finally {
                 document.getElementById('loadingState').classList.add('hidden');
             }
