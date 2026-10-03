@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Studio - Mubashir Photo Studio</title>
+    <title>Hugging Face Studio Engine - Mubashir Photo Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -22,7 +22,7 @@
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
                 <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1 rounded-full font-medium">✨ Google Gemini AI Engine</span>
+            <span class="text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full font-medium">⚡ HuggingFace Free Engine</span>
         </div>
     </header>
 
@@ -30,13 +30,12 @@
         
         <div class="lg:col-span-5 space-y-6">
             
-            <!-- Gemini API Key Input -->
             <div class="bg-zinc-900 border border-yellow-500/30 rounded-xl p-5">
                 <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider mb-1 flex items-center gap-2">
-                    <i class="fa-solid fa-key"></i> Google Gemini API Key
+                    <i class="fa-solid fa-key"></i> Hugging Face Access Token
                 </h2>
-                <p class="text-xs text-zinc-400 mb-3">Paste your API key (AQ.Ab8RN6...)</p>
-                <input type="password" id="apiKeyInput" placeholder="AQ.Ab8RN6***********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
+                <p class="text-xs text-zinc-400 mb-3">hf_... Token paste karein (huggingface.co/settings/tokens)</p>
+                <input type="password" id="apiKeyInput" placeholder="hf_***********************************" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-yellow-500">
             </div>
 
             <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
@@ -49,14 +48,9 @@
                 </label>
             </div>
 
-            <button onclick="generateGeminiPhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
+            <button onclick="generatePhoto()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Official Passport Photo
             </button>
-
-            <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-400 space-y-1">
-                <p class="font-semibold text-yellow-500 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Applied Custom Prompt:</p>
-                <p class="italic">"Keep photo in original state, pure blue background, three-piece suit with blue tie, 35mm x 45mm passport dimensions, face and hairstyle 100% reference."</p>
-            </div>
 
         </div>
 
@@ -64,43 +58,35 @@
             <div class="w-full max-w-[413px] aspect-[35/45] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-2">
                 <div id="loadingState" class="hidden absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-4">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-zinc-700 h-12 w-12"></div>
-                    <p class="text-sm font-medium text-yellow-500 text-center px-4">Gemini AI Studio Generating...<br><span class="text-xs text-zinc-400">Locking face & hairstyle, applying 3-piece suit...</span></p>
+                    <p class="text-sm font-medium text-yellow-500 text-center px-4">Generating...<br><span class="text-xs text-zinc-400">Processing image via Hugging Face AI...</span></p>
                 </div>
                 <img id="resultImg" class="w-full h-full object-cover rounded-lg hidden" alt="Passport Result">
                 <div id="placeholderText" class="text-center p-6 text-zinc-500">
                     <i class="fa-solid fa-id-card text-5xl mb-3 text-zinc-700"></i>
-                    <p class="text-sm">API Key dalein, photo upload karein aur Generate par click karein</p>
+                    <p class="text-sm">HF Token enter karein, photo upload karke generate karein</p>
                 </div>
             </div>
 
             <div class="w-full max-w-[413px] mt-4">
-                <a id="downloadBtn" download="mubashir-studio-passport-35x45.png" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
-                    <i class="fa-solid fa-download"></i> Download 4K Passport Photo
+                <a id="downloadBtn" download="mubashir-studio-passport.png" target="_blank" class="hidden w-full btn-gold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-xl">
+                    <i class="fa-solid fa-download"></i> Download Passport Photo
                 </a>
             </div>
         </div>
 
     </main>
 
-    <footer class="border-t border-zinc-800 py-4 text-center text-xs text-zinc-500">
-        © 2026 Mubashir Creative Hub & Photo Studio. All Rights Reserved.
-    </footer>
-
     <script>
-        let base64CleanData = null;
-        let mimeType = "image/jpeg";
+        let imageBlobData = null;
 
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                mimeType = file.type || "image/jpeg";
+                imageBlobData = file;
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const fullBase64 = event.target.result;
-                    base64CleanData = fullBase64.split(',')[1];
-                    
                     const preview = document.getElementById('resultImg');
-                    preview.src = fullBase64;
+                    preview.src = event.target.result;
                     preview.classList.remove('hidden');
                     document.getElementById('placeholderText').classList.add('hidden');
                 };
@@ -108,85 +94,49 @@
             }
         });
 
-        async function generateGeminiPhoto() {
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            if (!apiKey) {
-                alert("Pehle Google Gemini API Key enter karein!");
+        async function generatePhoto() {
+            const token = document.getElementById('apiKeyInput').value.trim();
+            if (!token) {
+                alert("Pehle Hugging Face Token (hf_...) enter karein!");
                 return;
             }
-
-            if (!base64CleanData) {
-                alert("Pehle customer ki original photo upload karein!");
+            if (!imageBlobData) {
+                alert("Pehle image upload karein!");
                 return;
             }
 
             document.getElementById('loadingState').classList.remove('hidden');
 
-            const customPrompt = "Keep the uploaded photo exactly in its original state without changing the person’s identity or face shape. Transform it into a passport size photo with dimensions of 35mm width × 45mm height, 4K resolution. Set the background to Pure Blue. Dress the person in a three-piece suit with a blue tie. Adjust the hairstyle to suit the face. The final photo must look authentic, realistic, and official passport size. Face and hairstyle 100% Reference. dont change face and hair style.";
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+            const promptText = "Passport photo 35mmx45mm, pure blue background, wearing three-piece suit with blue tie, official 4k HD photo";
 
             try {
-                const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-                    method: 'POST',
+                const response = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
                     headers: { 
-                        'Content-Type': 'application/json',
-                        'x-goog-api-key': apiKey
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: customPrompt },
-                                {
-                                    inline_data: {
-                                        mime_type: mimeType,
-                                        data: base64CleanData
-                                    }
-                                }
-                            ]
-                        }]
-                    })
+                    method: "POST",
+                    body: JSON.stringify({ inputs: promptText }),
                 });
 
-                const data = await response.json();
-
-                if (data.error) {
-                    alert("Gemini Error: " + data.error.message + "\n\nTip: Agar AQ key par Quota limit bol raha hai, to dusri Google Account se aistudio.google.com se nayi Key generate kar lein.");
-                    document.getElementById('loadingState').classList.add('hidden');
+                if (!response.ok) {
+                    const err = await response.json();
+                    alert("HF Error: " + (err.error || "Token invalid"));
                     return;
                 }
 
-                const candidates = data.candidates;
-                if (candidates && candidates[0] && candidates[0].content) {
-                    const parts = candidates[0].content.parts;
-                    let imgFound = false;
+                const resultBlob = await response.blob();
+                const imageObjectURL = URL.createObjectURL(resultBlob);
 
-                    for (let part of parts) {
-                        if (part.inline_data || part.inlineData) {
-                            const imgData = part.inline_data || part.inlineData;
-                            const newSrc = `data:${imgData.mime_type || imgData.mimeType};base64,${imgData.data}`;
-                            
-                            const resultImg = document.getElementById('resultImg');
-                            resultImg.src = newSrc;
-                            
-                            const downloadBtn = document.getElementById('downloadBtn');
-                            downloadBtn.href = newSrc;
-                            downloadBtn.classList.remove('hidden');
-                            
-                            imgFound = true;
-                            break;
-                        }
-                    }
-
-                    if (!imgFound) {
-                        alert("Response aa gaya hai. Image output ke liye account status active hone chahiye.");
-                    }
-                } else {
-                    alert("Response receive nahi hua.");
-                }
+                const resultImg = document.getElementById('resultImg');
+                resultImg.src = imageObjectURL;
+                
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.href = imageObjectURL;
+                downloadBtn.classList.remove('hidden');
 
             } catch (err) {
-                alert("Network Error: API key aur connection verify karein.");
+                alert("Network Error. Check token.");
             } finally {
                 document.getElementById('loadingState').classList.add('hidden');
             }
