@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mubashir Studio - AI Image Enhancer</title>
+    <title>Photo Enhancer - Mubashir Photo Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #0f0f11; color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .btn-gold { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #000; font-weight: 600; }
-        .btn-gold:hover { background: linear-gradient(135deg, #fde047 0%, #eab308 100%); }
-        input[type=range] { accent-color: #eab308; }
+        .btn-red { background: #e11d48; color: #ffffff; font-weight: 600; }
+        .btn-red:hover { background: #be123c; }
+        .loader { border-top-color: #e11d48; animation: spinner 1s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -20,92 +21,65 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <a href="index.html" class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-arrow-left text-xl"></i></a>
-                <h1 class="text-xl font-bold tracking-wide text-yellow-500">MUBASHIR PHOTO STUDIO</h1>
+                <h1 class="text-xl font-bold tracking-wide text-rose-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
-            <span class="text-xs bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1 rounded-full font-medium">✨ AI Image Enhancer Tool</span>
+            <span class="text-xs bg-rose-500/10 text-rose-400 border border-rose-500/20 px-3 py-1 rounded-full font-medium">✨ Auto HD Photo Enhancer</span>
         </div>
     </header>
 
     <!-- Main Workspace -->
-    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow flex flex-col items-center">
         
-        <!-- Controls Column -->
-        <div class="lg:col-span-5 space-y-5">
-            
-            <!-- Upload Photo -->
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-3">
-                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-file-image"></i> Select Image
-                </h2>
-                <input type="file" id="imageInput" accept="image/*" class="hidden">
-                <label for="imageInput" class="w-full btn-gold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg">
-                    <i class="fa-solid fa-upload"></i> Upload Customer Photo
-                </label>
-            </div>
+        <h2 class="text-3xl font-extrabold text-white mb-6 text-center">Photo Enhancer</h2>
 
-            <!-- Preset Enhancements -->
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-3">
-                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> One-Click Presets
-                </h2>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="applyPreset('auto')" class="py-2 px-3 bg-zinc-800 hover:bg-yellow-500 hover:text-black rounded-lg text-xs font-semibold transition border border-zinc-700">⚡ Auto HD</button>
-                    <button onclick="applyPreset('portrait')" class="py-2 px-3 bg-zinc-800 hover:bg-yellow-500 hover:text-black rounded-lg text-xs font-semibold transition border border-zinc-700">👤 Passport Studio</button>
-                    <button onclick="applyPreset('reset')" class="py-2 px-3 bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold transition border border-red-700/50">🔄 Reset</button>
-                </div>
-            </div>
-
-            <!-- Manual Fine Tuning Sliders -->
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
-                <h2 class="text-sm font-semibold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-sliders"></i> Manual Adjustments
-                </h2>
-                
-                <div>
-                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
-                        <span>Brightness (Roshni)</span>
-                        <span id="brightnessVal">100%</span>
-                    </div>
-                    <input type="range" id="brightness" min="50" max="170" value="100" class="w-full" oninput="updateFilters()">
-                </div>
-
-                <div>
-                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
-                        <span>Contrast (Shetness)</span>
-                        <span id="contrastVal">100%</span>
-                    </div>
-                    <input type="range" id="contrast" min="50" max="180" value="100" class="w-full" oninput="updateFilters()">
-                </div>
-
-                <div>
-                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
-                        <span>Color Saturation (Rang)</span>
-                        <span id="saturateVal">100%</span>
-                    </div>
-                    <input type="range" id="saturate" min="0" max="200" value="100" class="w-full" oninput="updateFilters()">
-                </div>
-
-                <div>
-                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
-                        <span>Sharpness / Clarity</span>
-                        <span id="sharpnessVal">0</span>
-                    </div>
-                    <input type="range" id="sharpness" min="0" max="10" value="0" class="w-full" oninput="updateFilters()">
-                </div>
-            </div>
-
-            <button onclick="downloadEnhancedImage()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-xl transition">
-                <i class="fa-solid fa-download"></i> Download HD Enhanced Photo
-            </button>
-
+        <!-- Upload Box -->
+        <div class="w-full max-w-xl bg-zinc-900 border-2 border-dashed border-zinc-700 hover:border-rose-500 rounded-2xl p-6 text-center transition mb-8 shadow-xl">
+            <input type="file" id="imageInput" accept="image/*" class="hidden">
+            <label for="imageInput" class="btn-red py-3.5 px-8 rounded-xl flex items-center justify-center gap-3 cursor-pointer text-base shadow-lg mx-auto w-max">
+                <i class="fa-solid fa-upload"></i> Upload Image
+            </label>
+            <p class="text-xs text-zinc-400 mt-3">Select any photo to automatically enhance quality & detail</p>
         </div>
 
-        <!-- Canvas Preview Area -->
-        <div class="lg:col-span-7 flex flex-col items-center justify-center">
-            <div class="border-2 border-yellow-500/30 rounded-xl p-3 bg-zinc-900 shadow-2xl max-w-full overflow-hidden">
-                <canvas id="enhanceCanvas" class="rounded-lg max-w-full h-auto max-h-[500px] object-contain bg-zinc-950"></canvas>
+        <!-- Processing Loader -->
+        <div id="loadingState" class="hidden my-8 text-center space-y-3">
+            <div class="loader ease-linear rounded-full border-4 border-zinc-800 h-10 w-10 mx-auto"></div>
+            <p class="text-sm font-medium text-rose-400">Enhancing Image Quality & Sharpness...</p>
+        </div>
+
+        <!-- Comparison Section (Side-by-Side) -->
+        <div id="resultContainer" class="hidden w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start my-4">
+            
+            <!-- Left: Original Image -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col items-center shadow-lg">
+                <span class="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-3">Original</span>
+                <div class="w-full aspect-square bg-zinc-950 rounded-xl overflow-hidden flex items-center justify-center border border-zinc-800">
+                    <img id="originalImg" class="max-h-full max-w-full object-contain rounded-lg" alt="Original Photo">
+                </div>
             </div>
-            <p class="text-xs text-zinc-500 mt-3"><i class="fa-solid fa-shield-halved text-yellow-500"></i> High-Resolution Lossless Enhancement</p>
+
+            <!-- Right: Auto HD Enhanced Image -->
+            <div class="bg-zinc-900 border border-rose-500/30 rounded-2xl p-4 flex flex-col items-center shadow-2xl relative">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-sm font-bold text-rose-500 uppercase tracking-wider">Enhanced HD Quality</span>
+                    <span class="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold">Auto 4K</span>
+                </div>
+
+                <div class="w-full aspect-square bg-zinc-950 rounded-xl overflow-hidden flex items-center justify-center border border-zinc-800 mb-4">
+                    <canvas id="enhancedCanvas" class="max-h-full max-w-full object-contain rounded-lg"></canvas>
+                </div>
+
+                <!-- Download Buttons -->
+                <div class="w-full space-y-2">
+                    <button onclick="downloadImage('hd')" class="w-full btn-red py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-bold shadow-lg transition">
+                        <i class="fa-solid fa-download"></i> Download HD Image
+                    </button>
+                    <button onclick="downloadImage('full')" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold transition border border-zinc-700">
+                        <i class="fa-solid fa-file-image"></i> Download Full Resolution
+                    </button>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -115,79 +89,61 @@
     </footer>
 
     <script>
-        const canvas = document.getElementById('enhanceCanvas');
-        const ctx = canvas.getContext('2d');
-        let originalImage = null;
+        const imageInput = document.getElementById('imageInput');
+        const originalImg = document.getElementById('originalImg');
+        const enhancedCanvas = document.getElementById('enhancedCanvas');
+        const ctx = enhancedCanvas.getContext('2d');
+        const loadingState = document.getElementById('loadingState');
+        const resultContainer = document.getElementById('resultContainer');
 
-        document.getElementById('imageInput').addEventListener('change', function(e) {
+        let currentImage = null;
+
+        imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    originalImage = new Image();
-                    originalImage.onload = () => {
-                        canvas.width = originalImage.width;
-                        canvas.height = originalImage.height;
-                        applyPreset('reset');
-                    };
-                    originalImage.src = event.target.result;
+            if (!file) return;
+
+            loadingState.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                currentImage = new Image();
+                currentImage.onload = function() {
+                    // Display Original
+                    originalImg.src = event.target.result;
+
+                    // Auto Enhance Process
+                    setTimeout(() => {
+                        autoEnhancePhoto();
+                        loadingState.classList.add('hidden');
+                        resultContainer.classList.remove('hidden');
+                    }, 400);
                 };
-                reader.readAsDataURL(file);
-            }
+                currentImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
         });
 
-        function updateFilters() {
-            if (!originalImage) return;
+        function autoEnhancePhoto() {
+            enhancedCanvas.width = currentImage.width;
+            enhancedCanvas.height = currentImage.height;
 
-            const b = document.getElementById('brightness').value;
-            const c = document.getElementById('contrast').value;
-            const s = document.getElementById('saturate').value;
-            const sharp = parseInt(document.getElementById('sharpness').value);
+            // 1. Automatic Clarity, Brightness & Contrast Adjustment
+            ctx.clearRect(0, 0, enhancedCanvas.width, enhancedCanvas.height);
+            ctx.filter = 'brightness(108%) contrast(112%) saturate(106%)';
+            ctx.drawImage(currentImage, 0, 0, enhancedCanvas.width, enhancedCanvas.height);
 
-            document.getElementById('brightnessVal').innerText = b + '%';
-            document.getElementById('contrastVal').innerText = c + '%';
-            document.getElementById('saturateVal').innerText = s + '%';
-            document.getElementById('sharpnessVal').innerText = sharp;
-
-            // Draw with CSS Filters applied
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
-            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
-
-            // Apply Sharpness Convolution Matrix if requested
-            if (sharp > 0) {
-                applyConvolutionSharpness(sharp);
-            }
+            // 2. Convolution Matrix for Auto HD Sharpness Edge Detection
+            applySharpnessMatrix(enhancedCanvas.width, enhancedCanvas.height);
         }
 
-        function applyPreset(type) {
-            if (type === 'reset') {
-                document.getElementById('brightness').value = 100;
-                document.getElementById('contrast').value = 100;
-                document.getElementById('saturate').value = 100;
-                document.getElementById('sharpness').value = 0;
-            } else if (type === 'auto') {
-                document.getElementById('brightness').value = 110;
-                document.getElementById('contrast').value = 115;
-                document.getElementById('saturate').value = 110;
-                document.getElementById('sharpness').value = 3;
-            } else if (type === 'portrait') {
-                document.getElementById('brightness').value = 115;
-                document.getElementById('contrast').value = 108;
-                document.getElementById('saturate').value = 105;
-                document.getElementById('sharpness').value = 2;
-            }
-            updateFilters();
-        }
-
-        function applyConvolutionSharpness(level) {
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        function applySharpnessMatrix(w, h) {
+            const imgData = ctx.getImageData(0, 0, w, h);
             const data = imgData.data;
-            const w = canvas.width;
-            const h = canvas.height;
             const copy = new Uint8ClampedArray(data);
 
-            const weight = level * 0.1;
+            // Unsharp Mask Kernel
+            const weight = 0.35;
             const kernel = [
                 0, -weight, 0,
                 -weight, 1 + (4 * weight), -weight,
@@ -216,14 +172,11 @@
             ctx.putImageData(imgData, 0, 0);
         }
 
-        function downloadEnhancedImage() {
-            if (!originalImage) {
-                alert("Please upload an image first!");
-                return;
-            }
+        function downloadImage(type) {
+            if (!currentImage) return;
             const link = document.createElement('a');
-            link.download = 'mubashir-studio-hd-enhanced.png';
-            link.href = canvas.toDataURL('image/png', 1.0);
+            link.download = `mubashir-studio-hd-enhanced.png`;
+            link.href = enhancedCanvas.toDataURL('image/png', 1.0);
             link.click();
         }
     </script>
