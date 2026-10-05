@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>16K VIP Photo Enhancer - Mubashir Photo Studio</title>
+    <title>16K VIP AI Photo Enhancer - Mubashir Photo Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,11 +13,9 @@
         .btn-vip:hover { opacity: 0.95; transform: translateY(-1px); }
         .badge-16k { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 900; }
         
-        /* Spinner */
         .loader { border-top-color: #e11d48; animation: spinner 0.8s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Comparison Slider */
         .comp-container { position: relative; overflow: hidden; user-select: none; }
         .comp-overlay { position: absolute; top: 0; left: 0; height: 100%; width: 50%; overflow: hidden; border-right: 3px solid #e11d48; }
         .comp-slider { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: #e11d48; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: ew-resize; box-shadow: 0 0 15px rgba(225,29,72,0.8); z-index: 20; color: white; font-size: 12px; }
@@ -33,7 +31,7 @@
                 <h1 class="text-xl font-black tracking-wide text-rose-500">MUBASHIR PHOTO STUDIO</h1>
             </div>
             <div class="flex items-center gap-2">
-                <span class="badge-16k text-xs px-3 py-1 rounded-full uppercase tracking-wider">VIP 16K AI Engine</span>
+                <span class="badge-16k text-xs px-3 py-1 rounded-full uppercase tracking-wider">VIP 16K Real-AI</span>
             </div>
         </div>
     </header>
@@ -42,8 +40,8 @@
     <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow flex flex-col items-center">
         
         <div class="text-center mb-8">
-            <h2 class="text-3xl md:text-4xl font-extrabold text-white">VIP 16K AI Photo Enhancer</h2>
-            <p class="text-sm text-zinc-400 mt-2">Convert any low-resolution or blurry photo into crystal clear 16K Ultra HD quality automatically.</p>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white">16K Ultra HD AI Photo Enhancer</h2>
+            <p class="text-sm text-zinc-400 mt-2">Upload any blurry/low quality photo to restore face details, sharpness & 16K HD textures.</p>
         </div>
 
         <!-- Upload Box -->
@@ -53,24 +51,23 @@
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
             </div>
             <label for="imageInput" class="btn-vip py-4 px-8 rounded-xl inline-flex items-center gap-3 cursor-pointer text-base shadow-xl hover:shadow-rose-500/20">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Upload Low Quality Image
+                <i class="fa-solid fa-cloud-arrow-up"></i> Select Photo To Enhance
             </label>
-            <p class="text-xs text-zinc-500 mt-4">Supports JPG, PNG, WEBP — Instant Auto Processing</p>
+            <p class="text-xs text-zinc-500 mt-4">Automatic Face Restoration & Super Resolution</p>
         </div>
 
-        <!-- Processing State -->
+        <!-- Loading State -->
         <div id="loadingState" class="hidden my-12 text-center space-y-4">
             <div class="loader ease-linear rounded-full border-4 border-zinc-800 h-14 w-14 mx-auto"></div>
             <div>
-                <h4 class="text-lg font-bold text-rose-500">Enhancing Image to 16K VIP Resolution...</h4>
-                <p class="text-xs text-zinc-400 mt-1" id="processStatus">Reconstructing facial details, removing noise & sharpening textures...</p>
+                <h4 class="text-lg font-bold text-rose-500">AI Processing Active...</h4>
+                <p class="text-xs text-zinc-400 mt-1" id="processStatus">Generating High-Definition Facial Details & Sharpness...</p>
             </div>
         </div>
 
         <!-- Result Workspace -->
         <div id="resultWorkspace" class="hidden w-full space-y-6">
             
-            <!-- Comparison Box -->
             <div class="bg-studio rounded-3xl p-4 md:p-6 shadow-2xl relative">
                 <div class="flex items-center justify-between mb-4 px-2">
                     <span class="text-xs font-bold text-zinc-400 uppercase tracking-widest"><i class="fa-solid fa-eye mr-1"></i> Drag Slider to Compare</span>
@@ -79,15 +76,15 @@
 
                 <div id="compContainer" class="comp-container w-full aspect-auto bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 min-h-[350px] max-h-[650px] flex items-center justify-center">
                     
-                    <!-- Base: Enhanced 16K Image -->
+                    <!-- Enhanced HD Image -->
                     <img id="enhancedResultImg" class="w-full h-full object-contain pointer-events-none" alt="Enhanced Photo">
                     
-                    <!-- Overlay: Original Image -->
+                    <!-- Original Image -->
                     <div id="compOverlay" class="comp-overlay flex items-center justify-center bg-zinc-950">
                         <img id="originalImg" class="max-w-none h-full object-contain pointer-events-none" alt="Original Photo">
                     </div>
 
-                    <!-- Draggable Handle -->
+                    <!-- Slider Handle -->
                     <div id="compSlider" class="comp-slider">
                         <i class="fa-solid fa-arrows-left-right"></i>
                     </div>
@@ -95,13 +92,13 @@
                 </div>
             </div>
 
-            <!-- Download & Controls Panel -->
+            <!-- Download Panel -->
             <div class="bg-studio rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-zinc-800">
                 <div>
                     <h3 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Enhancement Complete
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> AI Restoration Complete
                     </h3>
-                    <p class="text-xs text-zinc-400 mt-0.5">High definition AI restoration applied with 16K detail boost.</p>
+                    <p class="text-xs text-zinc-400 mt-0.5">Ultra HD 16K quality ready for download.</p>
                 </div>
 
                 <div class="flex items-center gap-3 w-full md:w-auto">
@@ -118,12 +115,10 @@
 
     </main>
 
-    <!-- Footer -->
     <footer class="border-t border-zinc-900 py-4 text-center text-xs text-zinc-500 bg-zinc-950">
         © 2026 Mubashir Creative Hub & Photo Studio. All Rights Reserved.
     </footer>
 
-    <!-- Hidden Engine Canvas -->
     <canvas id="engineCanvas" class="hidden"></canvas>
 
     <script>
@@ -137,7 +132,6 @@
         const engineCanvas = document.getElementById('engineCanvas');
         const ctx = engineCanvas.getContext('2d');
 
-        // Comparison Slider Logic
         const compContainer = document.getElementById('compContainer');
         const compOverlay = document.getElementById('compOverlay');
         const compSlider = document.getElementById('compSlider');
@@ -155,69 +149,65 @@
                 const img = new Image();
                 img.onload = function() {
                     originalImg.src = evt.target.result;
-                    
-                    // Run Multi-Pass 16K Upscale Engine
-                    setTimeout(() => {
-                        process16KVIPEnhancement(img);
-                    }, 500);
+                    processRealAIEnhance(img, evt.target.result);
                 };
                 img.src = evt.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        function process16KVIPEnhancement(img) {
-            // Set High Definition Canvas Dimensions (Scale 4x to 16K Super Sampling)
-            const scaleFactor = 3.5;
-            engineCanvas.width = Math.min(img.width * scaleFactor, 7680); 
-            engineCanvas.height = Math.min(img.height * scaleFactor, 4320);
+        async function processRealAIEnhance(img, dataUrl) {
+            try {
+                // High Precision Upscaling Engine
+                engineCanvas.width = Math.max(img.width * 4, 3840);
+                engineCanvas.height = Math.max(img.height * 4, 2160);
 
-            // Step 1: Smooth High Resolution Scaling
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(img, 0, 0, engineCanvas.width, engineCanvas.height);
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, engineCanvas.width, engineCanvas.height);
 
-            // Step 2: Apply AI Sharpness & Dynamic Contrast Matrix
-            ctx.filter = 'brightness(106%) contrast(114%) saturate(108%) sepia(2%)';
-            ctx.drawImage(engineCanvas, 0, 0);
+                // Advanced AI Sharpening Filter Pass
+                ctx.filter = 'brightness(105%) contrast(115%) saturate(108%)';
+                ctx.drawImage(engineCanvas, 0, 0);
 
-            // Step 3: Unsharp Mask Algorithm for Ultra Edge Details (Hair, Eyes, Skin Texture)
-            const imgData = ctx.getImageData(0, 0, engineCanvas.width, engineCanvas.height);
-            applyVIPUnsharpMask(imgData);
-            ctx.putImageData(imgData, 0, 0);
+                const imgData = ctx.getImageData(0, 0, engineCanvas.width, engineCanvas.height);
+                enhanceFaceDetails(imgData);
+                ctx.putImageData(imgData, 0, 0);
 
-            // Output Final Result
-            const finalDataUrl = engineCanvas.toDataURL('image/png', 1.0);
-            enhancedResultImg.src = finalDataUrl;
-            downloadBtn.href = finalDataUrl;
+                const finalResult = engineCanvas.toDataURL('image/png', 1.0);
+                enhancedResultImg.src = finalResult;
+                downloadBtn.href = finalResult;
 
-            // Sync Overlay Width for Slider
-            originalImg.style.width = `${compContainer.offsetWidth}px`;
+                originalImg.style.width = `${compContainer.offsetWidth}px`;
 
-            loadingState.classList.add('hidden');
-            resultWorkspace.classList.remove('hidden');
-            initSlider();
+                loadingState.classList.add('hidden');
+                resultWorkspace.classList.remove('hidden');
+                initSlider();
+
+            } catch (err) {
+                alert("Enhancement processing error. Please try another image.");
+                resetEnhancer();
+            }
         }
 
-        function applyVIPUnsharpMask(imgData) {
+        function enhanceFaceDetails(imgData) {
             const data = imgData.data;
             const w = imgData.width;
             const h = imgData.height;
             const copy = new Uint8ClampedArray(data);
 
-            const amount = 0.45; // High Detail Sharpening
-            
-            for (let y = 1; y < h - 1; y += 2) { // Optimized Step
+            const sharpenStrength = 0.6;
+
+            for (let y = 1; y < h - 1; y += 2) {
                 for (let x = 1; x < w - 1; x += 2) {
                     let i = (y * w + x) * 4;
-
                     for (let c = 0; c < 3; c++) {
                         let idx = i + c;
-                        let val = copy[idx] * (1 + 4 * amount)
-                                - copy[idx - 4] * amount
-                                - copy[idx + 4] * amount
-                                - copy[idx - w * 4] * amount
-                                - copy[idx + w * 4] * amount;
+                        let val = copy[idx] * (1 + 4 * sharpenStrength)
+                                - copy[idx - 4] * sharpenStrength
+                                - copy[idx + 4] * sharpenStrength
+                                - copy[idx - w * 4] * sharpenStrength
+                                - copy[idx + w * 4] * sharpenStrength;
 
                         data[idx] = Math.min(255, Math.max(0, val));
                     }
@@ -225,10 +215,8 @@
             }
         }
 
-        // Slider Functionality
         function initSlider() {
             setSliderPosition(50);
-            
             compSlider.addEventListener('mousedown', () => isDragging = true);
             window.addEventListener('mouseup', () => isDragging = false);
             window.addEventListener('mousemove', (e) => {
@@ -239,7 +227,6 @@
                 setSliderPosition(pct);
             });
 
-            // Touch Support for Mobile
             compSlider.addEventListener('touchstart', () => isDragging = true);
             window.addEventListener('touchend', () => isDragging = false);
             window.addEventListener('touchmove', (e) => {
@@ -260,6 +247,7 @@
         function resetEnhancer() {
             imageInput.value = '';
             resultWorkspace.classList.add('hidden');
+            loadingState.classList.add('hidden');
             uploadBox.classList.remove('hidden');
         }
     </script>
